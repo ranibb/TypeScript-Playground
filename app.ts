@@ -1,17 +1,17 @@
 /* Let say we need to deal with location data where a certain location is like a point in 2-dimentiaol
 geometry described by 2 coordinates. */
 
-// Instead of the interface Point and the function newPoint, we just going to creaet a Point Class
 class Point {
-    x : number
-    y : number
 
-    /* A constructor function that is called when a new Point instance is created. It is resposible for 
-    initialze the instance properties */
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
+    /* Let us say we want to set the origin for every point globaly, then we could define a static property 
+    orgin that stores the orgin inside the class. */
+    static origin = new Point(0,0);
+
+    /*A short cut notation for a trivial initialization cases: We could leave out the property declaration and 
+    assignment. Instead add explicit access modifiers "Public" in the parameters list of the constructor */
+    constructor(public x: number, public y: number) {
     }
+
     /* Define the instance method distanceTo */
     distanceTo(otherPoint : Point) {
         /* Note that the keyword "this" in the class points to the current instance of the class, not the
@@ -20,12 +20,11 @@ class Point {
     }
 }
 
-/* Let us define the homePosition with help of the class. To create a new class instance we use "new" keyword
-followed by the class name followed by parameters in brackets as declared in class a constructor. */
-const homePosition : Point = new Point(0,0);
+/*Static members are accessible inside or out side of the Class by the Class name and a "." notation */
+Point.origin
 
 // Check if the distance is computed correctly.
-console.log(homePosition.distanceTo(new Point(-1,-1)));
+console.log(Point.origin.distanceTo(new Point(-1,-1)));
 
 // use the point structure to define a Trail
 interface Trail {

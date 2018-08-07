@@ -4,11 +4,11 @@
 
 # Classes
 
-Classes are not just blue prints to define a type of object but also has the capability to creat the object of a specific type.
+Classes are not just blue prints to define a type of object but also has the capability to create the object of a specific type.
 
-It is important to understand that a class type has two sides: The Instance Type and the Static Side. The instance memebrs are memebers that are called from class instances! from the objects created by the class. In our case, the coordinates and the distance method.
+It is important to understand that a class type has two sides: The Instance Type and the Static Side. The instance members are members that are called from class instances! from the objects created by the class. In our case, the coordinates and the distance method.
 
-Whereas statcic memebrs are called by the class it self. For example, the construcor function used by the class to create new instances.
+Whereas static members are called by the class itself. For example, the constructor function used by the class to create new instances.
 
 ## What is a class and how to declare and use them to create Objects?
 
@@ -22,6 +22,9 @@ Whereas statcic memebrs are called by the class it self. For example, the constr
 
 Classes encapsulate the data and functionality needed to create objects of a particular type.
 
+The constructor function is a special static member, called by an instance when created and it is supposed to initialize the instance properties. However, it is not strictly required to provide a constructor function. In such a case TypeScript sets all properties to undefined that they are not yet initialized.
+
+In our case, the initialization is trivial since we just copy the parameter values into instance property variables with the same name. In a scenario like that TypeScript offers a shortcut. Leave out the property declaration and assignment and instead add explicit access modifiers in the parameters list of the constructor indicating that we understand these variables not just as properties of the constructor function but as an instance properties’. In our case, we add the keyword "Public" which means that the instance variables should be accessible and modifiable from each instance with the "." notation.
 
 ## The two sides of the Class Type: Static Type vs. Instance Type
 
