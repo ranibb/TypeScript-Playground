@@ -6,6 +6,10 @@
 
 Classes are not just blue prints to define a type of object but also has the capability to creat the object of a specific type.
 
+It is important to understand that a class type has two sides: The Instance Type and the Static Side. The instance memebrs are memebers that are called from class instances! from the objects created by the class. In our case, the coordinates and the distance method.
+
+Whereas statcic memebrs are called by the class it self. For example, the construcor function used by the class to create new instances.
+
 ## What is a class and how to declare and use them to create Objects?
 
     class CName {

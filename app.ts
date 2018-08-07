@@ -1,41 +1,31 @@
 /* Let say we need to deal with location data where a certain location is like a point in 2-dimentiaol
 geometry described by 2 coordinates. */
 
-interface Point {
-
+// Instead of the interface Point and the function newPoint, we just going to creaet a Point Class
+class Point {
     x : number
     y : number
 
-    // A method that takes otherPoint as parameter and returns the distance to that point
-    distanceTo(otherPoint : Point) : number
-}
-
-/* Since the interface describes the shape and doesn’t implement functionality we have to provide not only
-the individual point data and implementation but also the general logic and functionality of the point type. 
-A solution in our case would be to define a function, let us call it newPoint, that takes the individual 
-point parameter that is a coordinate as input and returns a fully functional Object of Point type. */
-function newPoint(x : number, y : number) : Point {
-    return {
-        x : x,
-        y : y,
-        distanceTo(otherPoint) {
-            /* The distance is computed by Pythagorean theorem as a square root of the sum of the otherPoints 
-            coordinates each raise to the power of 2 */
-            return Math.sqrt( Math.pow(otherPoint.x - x,2) + Math.pow(otherPoint.y - y,2) )
-    
-        }
+    /* A constructor function that is called when a new Point instance is created. It is resposible for 
+    initialze the instance properties */
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+    /* Define the instance method distanceTo */
+    distanceTo(otherPoint : Point) {
+        /* Note that the keyword "this" in the class points to the current instance of the class, not the
+        class it self.*/
+        return Math.sqrt( Math.pow(otherPoint.x - this.x,2) + Math.pow(otherPoint.y - this.y,2) )
     }
 }
 
-/* With the newPoint function it is much easier to create newPoint objects. The only disadvantage is that we 
-need 2 steps: an interface and a separate function. The idea to combine the structure blue print for the 
-individual objects and the general logic and functionality of the type is just the idea of a class */
-
-// Use the function to create our homePosition
-const homePosition : Point = newPoint(0,0);
+/* Let us define the homePosition with help of the class. To create a new class instance we use "new" keyword
+followed by the class name followed by parameters in brackets as declared in class a constructor. */
+const homePosition : Point = new Point(0,0);
 
 // Check if the distance is computed correctly.
-console.log(homePosition.distanceTo(newPoint(-1,-1)));
+console.log(homePosition.distanceTo(new Point(-1,-1)));
 
 // use the point structure to define a Trail
 interface Trail {
