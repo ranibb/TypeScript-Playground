@@ -40,4 +40,10 @@ In each case where a new object is created from the particular type the class co
 
 ## Classes vs. Interfaces
 
-Interfaces define just the shape of an objects whereas classes define the shape and contains the functionality to create objects of that shape.
+* Interfaces define just the shape of an objects whereas classes define the shape and contains the functionality to create objects of that shape.
+* In cases where we just want to provide type for the data we receive from external data source we prefer interfaces.
+* In case we need some runtime functionality we need classes since interfaces only exist at compile time.
+* Classes allow us to use object orientated programming techniques like inheritance.
+
+## Remark
+If you deal with complex objects and try to create new objects by the copy and change method, beachful. for instance, if you store the homePosition to another variable and change a coordinate and then look what happened to homePosition, you will not that it also changed the home position. The reason is that complex types like objects or arrays are passed by reference not by value. Only the primitive types are passed by value.
