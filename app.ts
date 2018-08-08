@@ -26,17 +26,33 @@ console.log(homePosition.distanceTo(new Point(-1,-1)));
 
 /* The Trail Class has an instance property coordinates storing a sequence of points representing the trail.*/
 class Trail {
-   
-    coordinates: Point[] = [] // A sequence of points representing the trail
+    
+    /* In order to restrict direct access to coordinates, let us say to allow only adding points to the trail 
+    by the add method, we could use the "private" keyword in front of the variable coordinates and add an
+    explicit getter method. For that add an "_" as prefix to the private property by convention and write
+    a getter with the "get" keyword followed by the property name without the "_" */
+    private _coordinates: Point[] = []
+
+    // The Getter
+    get coordinates() : Point[] {
+        // Keep it simple here and just return the coordinates
+        return this._coordinates;
+    }
+
+    // The Setter
+    set coordinates(newCoordinates : Point[]) {
+        // To-do: code to Check if user os authorized..
+        this._coordinates = newCoordinates;
+    }
 
     /* A constructor without parameters that just initializes an empty trail. That is a trail with no points. */
     constructor() {
-        this.coordinates = [];
+        this._coordinates = [];
     }
 
     // A method for adding new points to the trail.
     add(point: Point) : Trail {
-        this.coordinates.push(point);
+        this._coordinates.push(point);
         return this; // returning the resulting trail instance.
     }
 
@@ -47,12 +63,11 @@ class Trail {
         let total = 0;
 
         /* Start with index 1 (that is the 2nd point) to add up the distances between points. */
-        for (let index = 1; index < this.coordinates.length; index++) {
+        for (let index = 1; index < this._coordinates.length; index++) {
 
             /* So, the loop computes the sum of the distance from the 2nd point to the 1st point, The 3rd 
             point to the 2nd point, and so on. */
-
-            total += this.coordinates[index].distanceTo(this.coordinates[index - 1])
+            total += this._coordinates[index].distanceTo(this._coordinates[index - 1])
         }
 
         return total;
@@ -66,3 +81,8 @@ trail.add(new Point(1,1));
 trail.add(homePosition);
 
 console.log(trail.totalDistance());
+
+/* Be aware to get and set the property like a variable. Don't try to invoke the getters and setters like a
+method. */
+trail.coordinates = []; // Set the coordinates like a variable with an assignment.
+console.log(trail.coordinates); // Get it like a variable without round brackets.
