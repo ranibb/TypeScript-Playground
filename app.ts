@@ -116,12 +116,32 @@ class Trail {
     }
 }
 
-let trail = new Trail();
-/* What happens if we put the observations instead of the points in a Trail? */
-trail.add(obs1);
-trail.add(obs2);
+/* Obviously, we can still use the Trail class as before, but in case you like to drive for a more specific 
+type, let’s call it a trek that guarantees that only observations are stored and not points, we could use inheritance 
+again: */
+class Trek extends Trail {
 
-console.log(trail.totalDistance());;
-/* It seems everything work as before. The reason is that an observation is also a point since it’s an 
-extension, its more specific but it has all point properties. However, we don't lose the additional 
-observation information as we can verify by printing the content of the coordinates to the console. */
+    /* We don't need to change the constructor, since on our case it just initializes the internal data 
+    structure as an empty list. However, we want to ensure that only observations can be stored in a Trek
+    object. So, overwrite the add method but changing the signature to allow only observations to be added. */
+    add(observation: Observation) : Trail {
+
+        // And for implementation reuse the code of the super class
+        super.add(observation)
+        return this;
+    }
+
+}
+
+/* Now that we exchanged the trail by a trek... */ 
+let trek = new Trek();
+/* we can add observations... */
+trek.add(obs1);
+trek.add(obs2);
+/* but we can't add an object of type Point //trek.add(new Point(1,1)); */
+
+console.log(trek.totalDistance());
+
+/**
+* With this guarantee we could continue by adding more specific trek functionalities to the Trek class.
+ */

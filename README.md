@@ -31,3 +31,4 @@ Note: If you define only a getter but no setter, then the consequence is that we
 ### Understanding Inheritance
 
 ### Abstract Classes as base classes in class hierarchies that can't be instantiated them selves
+An abstract class is defined by adding the keyword abstract in front of the class keyword indicating that this class can't be instantiated. Such a class is supposed to be used as a base class for inheritance but it's not instantiated itself. With an abstract class, you can also declare members as abstract in case you don't want to include implementation in the base class but require from the extending classes that these members are implemented.
