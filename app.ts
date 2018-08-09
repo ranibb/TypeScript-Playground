@@ -3,8 +3,13 @@ interface Printable {
 }
 
 class Point implements Printable {
+
     static origin = new Point(0,0);
-    constructor(public x: number, public y: number) {
+
+    /* In order to prevent the manipulation of points from outside the class and to allow only the creation of 
+    new points, no modification to coordinates, but at the same time to guarantee access to the coordinates from
+    existing sub classes, declare the coordinates as protected. */
+    constructor(protected x: number, protected y: number) {
     }
     distanceTo(otherPoint : Point) {
         return Math.sqrt( Math.pow(otherPoint.x - this.x,2) + Math.pow(otherPoint.y - this.y,2) )
@@ -18,13 +23,50 @@ function print(source: Printable) {
     console.log(source.toString());
 }
 
-const homePosition : Point = new Point(0,0);
-console.log(homePosition);
+/**
+ * By class inheritance or extension which means the same, drive class Observation that inherits from the 
+ * Point class but in addition to the coordinates also includes a time stamp and a height information. 
+ * Think of the case of a Trekking app that can record mountain treks or hikes. For that we need to know not 
+ * only the current locations but also the times and heights. Also overwrite the constructor to include all 4 
+ * parameters. The two coordinates as before, the timestamp and the current height. It is important here not 
+ * to add access modifiers at the coordinates since we inherit the location properties and don't want to 
+ * redeclare instance properties for the coordinates. Whereas we add the access modifiers private at the 
+ * other two parameters indicating we want to declare them also as instance properties. To initialize the 
+ * extended class instance, first initialize the base class which is the point class. To access a base class 
+ * we have the special keyword "super". Therefore, call the constructor of the base class with super followed 
+ * by the parameters in brackets, in our case, the coordinates. After initializing the super class we would 
+ * proceed to initialize the remaining properties timestamp and height. However, we don't need to do that since 
+ * it is done automatically by TypeScript when using the shortcut notation with access modifiers added to the 
+ * constructor parameters. The procedure of initialization of a sub class is always the same. In a first step, 
+ * we initialize the super class, and in a second step we initialize the properties added in the sub class.
+ */
+class Observation extends Point {
+    constructor(x:number, y:number, private timestamp: Date, private height) {
+        super(x, y)
+    }
+    /* In order to print observation data, we also overwrite the toString method to return a string with day 
+    time, location and height information */
+    toString() {
+    return `Observation from: ${this.timestamp},
+            at location: (${this.x}, ${this.y}),
+            at the height of: ${this.height} m.`;
+    }
+}
 
-print(homePosition);
-console.log(homePosition.distanceTo(new Point(-1,-1)));
+/* Define two new observations */
+const obs1 = new Observation(0, 0, new Date(), 1000);
+const obs2 = new Observation(1, 1, new Date(), 2000);
 
-/* The Trail Class has an instance property coordinates storing a sequence of points representing the trail.*/
+/* Log information of both observations */
+print(obs1);
+print(obs2);
+
+/* Also log the distance to check that this method is inherited correctly from the super class.*/
+console.log(obs1.distanceTo(obs2));
+/* Note that we didn't need to write a lot of code since class inheritance enabled us to reuse the 
+functionality contained in the Point super class. */
+
+/* The Trail Class has an instance property coordinates storing a sequence of points representing the trail. */
 class Trail {
     
     /* In order to restrict direct access to coordinates, let us say to allow only adding points to the trail 
@@ -41,7 +83,7 @@ class Trail {
 
     // The Setter
     set coordinates(newCoordinates : Point[]) {
-        // To-do: code to Check if user os authorized..
+        // To-do: code to Check if user is authorized..
         this._coordinates = newCoordinates;
     }
 
@@ -75,14 +117,11 @@ class Trail {
 }
 
 let trail = new Trail();
-trail.add(homePosition);
-trail.add(new Point(0,1));
-trail.add(new Point(1,1));
-trail.add(homePosition);
+/* What happens if we put the observations instead of the points in a Trail? */
+trail.add(obs1);
+trail.add(obs2);
 
-console.log(trail.totalDistance());
-
-/* Be aware to get and set the property like a variable. Don't try to invoke the getters and setters like a
-method. */
-trail.coordinates = []; // Set the coordinates like a variable with an assignment.
-console.log(trail.coordinates); // Get it like a variable without round brackets.
+console.log(trail.totalDistance());;
+/* It seems everything work as before. The reason is that an observation is also a point since it’s an 
+extension, its more specific but it has all point properties. However, we don't lose the additional 
+observation information as we can verify by printing the content of the coordinates to the console. */
