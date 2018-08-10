@@ -35,29 +35,27 @@ the function name and inside the angular brackets use T as a type place holder. 
 for the input parameter and the returned value to use T instead of any. This is the way to define a generic 
 function. 
 
-To make variable amount available on type T, we need to constraint the type T, we to accept only types that 
-have an amount property. For that define an interface HasAmount and amount as a member. Then state the 
-constraint by use of the key word extends within the angular brackets*/
+To further generalize the function, we could therefor add a second type variable that represents one of the 
+members of the type T we defined already. But how can we express the constraint that the second type variable 
+should be one of the keys of the first? For situations like that TypeScript offers a special keyword keyof. 
 
-interface HasAmount {
-    amount: number
-}
+keyOf written in front of another type returns a variable that only contain one of the keys of that type 
+expressed as a string. In our case, add a key type K within the angular brackets as a second type variable and
+constrain it with extends keyof T, meaning that K can only be assigned to one of the property keys of T. 
+Then add a key variable with type K as a function input. */
 
-function findMaximum<T extends HasAmount>(data: T[]) : T { // For clarity chnage also the parameter name to data
+function findMaximum<T, K extends keyof T>(data: T[], key: K) : T {
     let max = data[0]; // Initially set the maximum to the first entry.
     for (let element of data) {
-        if (element.amount > max.amount) { 
+        /* We can't use the "." notation since key is a string. To access the object member, we use square
+        brackets. */
+        if (element[key] > max[key]) { 
             max = element;
         }
     }
     return max;
 }
 
-console.log(findMaximum(sales));
-/* The example still works but the function still has a drawback. We can use it only for lists that have the 
-amount property and we always assume an authoring of elements by amount. To further generalize the function, 
-we could therefor add a second type variable that represents one of the members of the type T we defined 
-already. 
-
-But how can we express the constraint that the second type variable should be one of the keys of the first? 
-For situations like that TypeScript offers a special keyword keyOf */
+/* we can Check our case by calling the function with the name of the property to compare. We could use the 
+function for any set that has a variable natural ordering. */
+console.log(findMaximum(sales, "amount"));
