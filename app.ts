@@ -40,3 +40,5 @@ function findMaximum(salesData: Sales[]) : Sales {
 }
 
 console.log(findMaximum(sales));
+/* Observe that this function is quite restricted in its use since its only work for data of the Sales type 
+and assumes also that we have an amount variable on the list. */
