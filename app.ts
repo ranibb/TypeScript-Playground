@@ -1,5 +1,3 @@
-/*Assume we deal with sales data whose defined by an interface Sales. */
-
 enum Country {
     US = "United States",
     JP = "Japan",
@@ -7,55 +5,51 @@ enum Country {
     DE = "Germany"
 }
 
-interface Sales {
-    country : Country // The country could be a Country code defined by an enumeration.
-    amount : number // The amount is of a numeric type.
+/* Define our own comparable interface that can be implemented by a Sales class. The interface has a compareTo 
+method that takes an item and returns a number. Think 1 for greater and -1 for smaller and equal. This method 
+compares the object itself with another object of the same type. The object type could be anything, so we 
+create a generic interface with a type placeholder <T> and define the item type in the method as T. */
+interface Comparable<T> {
+    compareTo(item:T) : number
+}
+
+/* Define a Sales class that implements the comparable interface of type Sales with a constructor that takes 
+country and amount to reflect our simple example. And add a compareTo method that compares to another Sales
+object. By implementing the interface, we show that our class can compare its instances and define how they 
+should be compared.
+*/
+class Sales implements Comparable<Sales> {
+    constructor(private country: Country, private amount: number) {}
+    compareTo(item: Sales) : number {
+        /* Return 1 in case our current instance referred by the keyword this has a greater amount than the 
+        item we compare to */
+        if (this.amount > item.amount) {
+            return 1;
+        } 
+        else {
+            return -1;
+        }
+    }
 }
 
 let sales : Sales[] = [
-    {
-        country : Country.US,
-        amount: 35600
-    },
-    {
-        country : Country.JP,
-        amount: 48900
-    },
-    {
-        country : Country.CN,
-        amount: 8900
-    }
+    /* Instead of writing inline objects, we can use the class to initialize them. Each class object is 
+    initialized by the keyword new as a class instance. */
+    new Sales(Country.US, 35600), 
+    new Sales(Country.JP, 48900), 
+    new Sales(Country.CN, 8900)
 ]
 
-/* A function that find the maximum sales. It takes salesData as an argument and returns a sales object back 
-that represents the sales on a list with maximum amount.
-
-To Improve type safety, we can define the function as a generic function. For that add angular brackets after 
-the function name and inside the angular brackets use T as a type place holder. Now we can change the type 
-for the input parameter and the returned value to use T instead of any. This is the way to define a generic 
-function. 
-
-To further generalize the function, we could therefor add a second type variable that represents one of the 
-members of the type T we defined already. But how can we express the constraint that the second type variable 
-should be one of the keys of the first? For situations like that TypeScript offers a special keyword keyof. 
-
-keyOf written in front of another type returns a variable that only contain one of the keys of that type 
-expressed as a string. In our case, add a key type K within the angular brackets as a second type variable and
-constrain it with extends keyof T, meaning that K can only be assigned to one of the property keys of T. 
-Then add a key variable with type K as a function input. */
-
-function findMaximum<T, K extends keyof T>(data: T[], key: K) : T {
+/* The function now works with type T that extends comparable interface for type T. */
+function findMaximum<T extends Comparable<T>>(data: T[]) : T {
     let max = data[0]; // Initially set the maximum to the first entry.
     for (let element of data) {
-        /* We can't use the "." notation since key is a string. To access the object member, we use square
-        brackets. */
-        if (element[key] > max[key]) { 
+        /* Write the comparison of each element to the max element by use of the compareTo method */
+        if (element.compareTo(max) == 1) { 
             max = element;
         }
     }
     return max;
 }
 
-/* we can Check our case by calling the function with the name of the property to compare. We could use the 
-function for any set that has a variable natural ordering. */
-console.log(findMaximum(sales, "amount"));
+console.log(findMaximum(sales));
