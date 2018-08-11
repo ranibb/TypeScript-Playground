@@ -40,16 +40,30 @@ let sales : Sales[] = [
     new Sales(Country.CN, 8900)
 ]
 
-/* The function now works with type T that extends comparable interface for type T. */
-function findMaximum<T extends Comparable<T>>(data: T[]) : T {
-    let max = data[0]; // Initially set the maximum to the first entry.
-    for (let element of data) {
-        /* Write the comparison of each element to the max element by use of the compareTo method */
-        if (element.compareTo(max) == 1) { 
-            max = element;
+/* Declare a class orderedList as a generic class with element type T implementing 
+the comparable interface. In the constructor add a data of an array type over T as a
+private property. */
+class orderedList<T extends Comparable<T>> {
+    constructor(private data: T[]) {}
+    // An instance method that returns a T element.
+    maxItem() : T {
+        /* Initially set the maximum to the first entry. And add the keyword this 
+        in front of data since data now is a property of the orderedList */
+        let max = this.data[0]; 
+        for (let element of this.data) {
+            /* Write the comparison of each element to the max element by use of the 
+            compareTo method */
+            if (element.compareTo(max) == 1) { 
+                max = element;
+            }
         }
+        return max;
     }
-    return max;
 }
 
-console.log(findMaximum(sales));
+/* To define a sales list as an orderedList, we instantiate the generic class with the 
+keyword new */
+const salesList = new orderedList<Sales>(sales);
+
+/* Finally, we log the max item of the sales list to the console. */
+console.log(salesList.maxItem());
