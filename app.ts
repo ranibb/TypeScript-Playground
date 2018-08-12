@@ -22,3 +22,6 @@ console.log(list.every(isPositive));
 function separately, we could use the arrow function syntax inline. Since a call back function contains just 
 a return statement we even can leave out the return keyword and the curly braces */
 console.log(list.every((value) => value > 0));
+
+/* The method some has the same syntx as every but returns true if one of the entries is true */
+console.log(list.some((value) => value > 0));
