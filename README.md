@@ -23,6 +23,8 @@ In general, a type assertion is required when assigning supertype to a subtype b
 
 In this context we need to understand when to use type assertion and when not.
 
+To sum up, use a type assertion we assigning a supertype to a subtype and take care by yourself to properly initialize all the additional members of the subtype.
+
 ## Type Guards
 Unlike the type assertion, a type guard exists at run-time and help us to check the type of a variable. For that TypeScript offers us two operators:
 
@@ -39,3 +41,5 @@ typeof: With typeof we check for the type of primitive variables
     }
 
 Moreover, we might define our own custom type guards. For instance, if we use inline type objects.
+
+To sum up, use type guards to check for the type of variables. instanceof for class instances. typeof for primitive types. And custom type guards for other types.

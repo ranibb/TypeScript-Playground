@@ -58,3 +58,25 @@ let text = "Hello";
 /* The typeof is written in front of the variable to check. And the written value from typeof is compared 
 to the name of the primitive type as a string expression. */
 console.log(typeof text == "string");
+
+/* How about inline type objects are objects with an interface type? In these cases, we have the option to 
+write our own type checking functions. Let’s take a circle interface as an example with 2 properties center 
+and radio */
+interface Circle {
+    center: Point,
+    radius: number
+}
+
+/* For a custom type guard, write a function isCircle that takes an object of type any and checks if the 
+object has the two properties center and radio */
+function isCircle(object: any) {
+    return (object.center != undefined && object.radius != undefined)
+}
+
+/* For a quick test define a circle object and apply the function isCircle on it */
+let circle = {
+    center: new Point(0,0),
+    radius: 1
+}
+
+console.log(isCircle(circle));
