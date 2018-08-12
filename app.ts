@@ -38,3 +38,23 @@ supplied data) */
 p = Point.fromObject(p_inline);
 /* Add another point */
 console.log(p.add(new Point(3,3)));
+
+/* Write a function that prints a point to the console. The print function takes a point object as input that 
+could be a 2-dimentional point! Within an if statement we distinguish the different cases... */
+function print(point: Point) {
+    if (point instanceof Point3d) {
+        console.log(`Point(${point.x}, ${point.y}, ${point.z})`);
+    }
+    else if (point instanceof Point)  {
+        console.log(`Point(${point.x}, ${point.y})`);
+    }
+}
+
+print(new Point(2,2));
+print(new Point3d(3,3,3));
+
+/* A quick look at typeof operator. That is used for checking the type of a primitive variable. */
+let text = "Hello";
+/* The typeof is written in front of the variable to check. And the written value from typeof is compared 
+to the name of the primitive type as a string expression. */
+console.log(typeof text == "string");
