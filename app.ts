@@ -1,10 +1,17 @@
+/* Enhance the class by a method "add" which takes another point as parameter. The method shifts the point by 
+the coordinates of the other Point and returns back the shifted Point */
 class Point {
     constructor(public x: number, public y: number) {
     }
+    add(otherPoint: Point) : Point {
+        this.x += otherPoint.x;
+        this.y += otherPoint.y;
+        return this;
+    }
 }
 
-/* Use inheritance to create class Point3d that is a subclass of class Point since it has all the properties of the 
-2-dimensional Point but in addition a coordinate z */
+/* Use inheritance to create class Point3d that is a subclass of class Point since it has all the properties 
+of the 2-dimensional Point but in addition a coordinate z */
 class Point3d extends Point {
     constructor(x: number, y: number, public z: number) {
         super(x,y);
@@ -17,21 +24,14 @@ let p: Point = new Point(0,0);
 /* Create an instance q of the 3-dimensional Point where all coordinates are set to 1 */
 let q: Point3d = new Point3d(1,1,1);
 
-/* What happens when we assign p to q and vice versa? In our discussion about type compatibility we concluded 
-that a variable of type t could be assigned to a variable of type s if t contains at least all members of s. 
-In other words, if t is a subtype of s. So, in our example, we expect TypeScript to accept the assignment */
-p=q;
-console.log(p);
-
-/* But what if we want to initialize a 3- dimensional point by the coordinates x and y of a 2-dimentional point 
-and set the z coordinate separately. In such a case, where we are going to assign a supertype to a subtype 
-and partially initialize the subtype with members of the supertype we use the "as" operator for an explicit 
-type assertion. */
-p = new Point(0,0); // reset p
-q = p as Point3d; 
-console.log(q); // The x and y the properties from the super type are set.
-console.log(q.z); // The z remains undefined.
-
-/* By using the type assertion we get full control over the types of the variables we define but also 
-responsibility to initialize the variables correctly. One example where we need type assertion: a hybrid type 
-that we studied in lesson 6 in the context of interfaces. */
+/* Get an inline type object back from some database query that contains a data of a 2-dimensional Point and 
+We want to assign a Point object with this data. */
+let p_inline = {x:2, y:2};
+/* since we can't assign it directly we might think a type assertion could help us here.. */
+p = p_inline as Point; 
+/* but when we try to add another point? we run into an error! The reason is that the add method is not 
+defined on p. */
+console.log(p.add(new Point(3,3)));
+/* So we only suppressed an error at compile-time but still have full responsibility to define all members 
+from the point class. Instead of a type assertion we need to use the class constructor to create a point 
+from the data provided from some inline type object. */
