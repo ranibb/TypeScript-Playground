@@ -1,7 +1,13 @@
 /* Enhance the class by a method "add" which takes another point as parameter. The method shifts the point by 
-the coordinates of the other Point and returns back the shifted Point */
+the coordinates of the other Point and returns back the shifted Point. Instead of a type assertion we need to 
+use the class constructor to create a point from the data provided by some inline type object. */
 class Point {
     constructor(public x: number, public y: number) {
+    }
+    /* A static method fromObject that takes an object of type any as input and returns a new Point 
+    instance initialized by the input data. */
+    static fromObject(obj: any) : Point {
+        return new Point(obj.x, obj.y)
     }
     add(otherPoint: Point) : Point {
         this.x += otherPoint.x;
@@ -27,11 +33,8 @@ let q: Point3d = new Point3d(1,1,1);
 /* Get an inline type object back from some database query that contains a data of a 2-dimensional Point and 
 We want to assign a Point object with this data. */
 let p_inline = {x:2, y:2};
-/* since we can't assign it directly we might think a type assertion could help us here.. */
-p = p_inline as Point; 
-/* but when we try to add another point? we run into an error! The reason is that the add method is not 
-defined on p. */
+/* Use the static method fromObject to assign the inline type object (create a Point instance based on the 
+supplied data) */
+p = Point.fromObject(p_inline);
+/* Add another point */
 console.log(p.add(new Point(3,3)));
-/* So we only suppressed an error at compile-time but still have full responsibility to define all members 
-from the point class. Instead of a type assertion we need to use the class constructor to create a point 
-from the data provided from some inline type object. */
