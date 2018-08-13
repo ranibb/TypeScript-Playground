@@ -90,3 +90,50 @@ airports.set("DXB","Dubai");
 /* And to retrieve an element use get with the airport code as parameter */
 console.log(airports.get("LAX"));
 /* Also explore the other methods available on the airports by using the "." notation (airports.) */
+
+/* Next lets talk about Union Types. A union type combines multiple types in one type. For an example, lets 
+first define two classes for payment methods; PayPal and credit card */
+class PayPal {
+    /* Here we just provide an email as property in the PayPal class */
+    constructor(private email: string) {};
+    // ...
+}
+class CreditCard {
+    /* Here we just provide the card number in the CreditCard class */
+    constructor(private cardNumber: number) {};
+    // ...
+}
+
+/* A union type is then defined by compining both classes using the pipe "|" symbol */
+type PaymentMethod = PayPal | CreditCard;
+
+/* To illustrate its usage write a function initPayment with parameters amount and PaymentMethod */
+function initPayment(amount: number, PaymentMethod: PaymentMethod) {
+    /* In the function body we can check if the actual type of the PaymentMethod supplied is PayPal or 
+    CreditCard using the instanceof operator */
+    if (PaymentMethod instanceof PayPal) {
+        console.log("PayPal");
+    }
+    if (PaymentMethod instanceof CreditCard) {
+        console.log("CreditCard");
+    }
+}
+
+/* We can also test the function with a dummy PayPal instance */
+let PaymentMethod = new PayPal("");
+initPayment(100, PaymentMethod);
+
+/* One typical use case for union types are string literal types. A string literal type is a subtype of string 
+but it is restricted to pre-defined values. The variable day below is here defined as a string literal type 
+that can only be assigned to "Monday". If you try to assign another string let’s say "Tuesday", a complier 
+error is shown! */
+let day : "Monday";
+//  day = "Thesday";
+
+/* String literal types starts to get more helpful combined with union types. For that let define a type 
+Weekday as a union type of the string literals "Monday" "Tuesday" .. */
+type Weekday = "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday";
+
+/* Then a variable of type Weekday can only be assigned to one of these days. In this case a union type 
+serves a similar purpose than a string enumeration */
+let weekday: Weekday = "Friday";
