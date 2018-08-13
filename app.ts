@@ -45,3 +45,35 @@ is added to the second element and so on. After iterating through the array, we 
 the entries. */
 let total = list.reduce((previousValue, currentValue) => previousValue + currentValue);
 console.log(total);
+
+/* Whereas an array is an ordered list, a Set is unordered and doesn't allow repetition of elements. Let’s try 
+the authors of a book as a set. The set type is a generic type so we add the element type in angular brackets 
+in a type definition. A new Set is initialized as a class instance and a class constructor might be called 
+within an array as parameter, which contains the initial values to be added to the set. */
+let authors : Set<string> = new Set(["Johnson", "Johnson", "Meyers", "Irwin"]);
+console.log(authors);
+/* Observe that repeated elements are ignored in the set since it doesn't allow repetition of elements. */
+
+/* Write an intersection function, taking a sequence of Sets as input and returning the intersection of the 
+Sets which is a Set of elements contained in all the input Sets.
+The function should be defined as a generic function with member type T and takes a sequence of sets as 
+parameter which might be defined as a rest parameter for convenience. And the function will return a Set of 
+member type T. */
+function intersection<T> (...sets: Set<T>[]) : Set<T> {
+    /* Create a new empty Set. */
+    let intersection = new Set<T>();
+    /* Iterate through all the members of the first Set provided as function input. We only want to add a 
+    member to the intersection if that member is contained in all other Sets too. To express this condition 
+    apply every method and to check whether the value is contained in a Set or not use the method has. */
+    sets[0].forEach((value) => {
+        if(sets.every((set) => set.has(value))) {
+            /* In case the member is contained in all the Sets, it is added to the intersection set. */
+            intersection.add(value);
+        }
+    })
+    return intersection;
+}
+
+let authors2 : Set<string> = new Set(["Johnson", "Meyers", "Irwin"]);
+
+console.log(intersection(authors, authors2, new Set(["Johnson", "Irwin"])));
