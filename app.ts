@@ -77,3 +77,16 @@ function intersection<T> (...sets: Set<T>[]) : Set<T> {
 let authors2 : Set<string> = new Set(["Johnson", "Meyers", "Irwin"]);
 
 console.log(intersection(authors, authors2, new Set(["Johnson", "Irwin"])));
+
+/* Now lets move on to the map type that is used for key-value mappings. Assume we need to map airport codes to 
+the airport location. A map is a generic type with 2 generic type parameters; the key type and the value type. 
+In our simple example both are just strings. To initialize a map instance with some data we might provide the 
+data in a constructor as an array of key-value tuples. */
+let airports : Map<string, string> = new Map([["LAX", "Los Angeles"], ["PEX", "Bejing"]]);
+
+/* To additional key-values pairs later use the Set method */
+airports.set("DXB","Dubai");
+
+/* And to retrieve an element use get with the airport code as parameter */
+console.log(airports.get("LAX"));
+/* Also explore the other methods available on the airports by using the "." notation (airports.) */
