@@ -137,3 +137,82 @@ type Weekday = "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday";
 /* Then a variable of type Weekday can only be assigned to one of these days. In this case a union type 
 serves a similar purpose than a string enumeration */
 let weekday: Weekday = "Friday";
+
+/* Now lets talk about Type mappings. Type mappings help us to transform type into a similar type. A typical 
+example is a Readonly type that is provided by TypeScript to create a read-only version of an aribitry type. 
+In a read-only version all members are marked read-only. Take the case of modeling publication data we 
+retrieved from a database. To ensure that a retired data can only be read but not changed we first define an 
+interface publication.*/
+interface Publication {
+    authors: string
+    title: string
+    publicationYear: number
+    //...
+}
+
+/* Then use a type mapping Readonly to create a read-only version of the publication type */
+type ReadonlyPublication = Readonly<Publication>;
+
+/* lets provide some test data of type Publication & ReadonlyPublication */
+const data : Publication = {authors: "Smith", title: "A magic book", publicationYear: 2018}
+const data2 : ReadonlyPublication = {authors: "Smith", title: "A magic book", publicationYear: 2018}
+
+/* If the test data is declared as a publication, the properties can be changed. */
+data.publicationYear = 2016;
+/* If the test data2 is declared as Readonlypublication we get a complier error when we try to do the same. */
+// data2.publicationYear = 2016;
+
+/* Now how can we define such a map type by ourselves? A bruit force solution would be is to copy the 
+interface and add a readonly property everywhere manually. And to make the code generic, first remove the type 
+definitions for various properties and use a type lookup to lookup the type based on the property names. 
+Remember the value lookup from one of the previous lessons that gives us a property value (data["authors"]). 
+By replacing the object by its type we get a type lookup which we use then to define the individual property 
+types in our code. */
+interface Publication2 {
+    authors: string
+    title: string
+    publicationYear: number
+    //...
+}
+interface ReadonlyPublication2 {
+    readonly authors: Publication2["authors"]
+    readonly title: Publication2["title"]
+    readonly publicationYear: Publication2["publicationYear"]
+    //...
+}
+/* Observe that the property declarations have now all the same structure. The only thing that changes is a 
+property name */
+
+/* So we could create a type as a ReadonlyPublication by listing all the properties from the original 
+publication interface in a structure as like above. To do that we use an index signature and within a square 
+brackets we start with "k" as a placeholder for an index key and we add the "in" operator followed by the set 
+of elements we want to list, In our case, the members of the publication interface. As we know already the 
+keyof operator apply to an object type returns all the members of that type. After the index signature we add 
+a type anotation for which we use a type lookup as like before. */
+interface Publication3 {
+    authors: string
+    title: string
+    publicationYear: number
+    //...
+}
+type ReadonlyPublication3 = {
+    readonly [k in keyof Publication3] : Publication3[k];
+}
+
+/* From here, it just takes one more step to define a type mapping Readonly like the one which is already 
+built in TypeScript. What we need is a generic version of the type above. To this end we replace publication 
+by a generic type variable, let’s call it T. And in the header we also add T within angular brackets. Since 
+Readonly is defined in TypeScript already we get an error if we try to use it, so we have to change the name 
+to something not defined yet. So, let’s call it Readonly2 */
+interface Publication4 {
+    authors: string
+    title: string
+    publicationYear: number
+    //...
+}
+type Readonly2<T> = {
+    readonly [k in keyof T] : T[k];
+}
+
+/* Then use our own type mapping Readonly2 to create a read-only version of the Publication4 type */
+type ReadonlyPublication4 = Readonly2<Publication4>;
