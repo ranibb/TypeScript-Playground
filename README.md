@@ -54,4 +54,5 @@ Error handling in promises with await-pattern
         ...
     }
 
-
+## Summery
+If you have the choice. the preferred way to implement asynchronous functions is by using promises together with the async-await pattern. However, if we don't have the choice when dealing with 3rd-party code and then we may have to deal with callbacks.
