@@ -52,38 +52,49 @@ const currentUser: User = { userID: "TS10298",
                             privileges: new Set(
                                 [
                                     TrailPrivilege.readCoordinates,
-                                    TrailPrivilege.addPoints
+                                    TrailPrivilege.addPoints,
+                                    TrailPrivilege.getDistance
                                 ]
                             )};
 
-/* The function/decorator requireAddPointPermission has to be implemented as a method decorator. A method 
-decorator has three arguments that are provided automatically by placing a decorator on a class method. The
-first argument is a target which is a prototype of the class. The second is a property Key which is a 
-method name. And a third is Property Descriptor which contains information about the method, in particular 
-it contains the value property with the method implementation. */
-function requireAddPointPermission(target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
-    /* For an implementation of the decorator we first save the original method implementation stored in 
-    descriptor.value in a constant orginalValue. */
-    const originalValue = descriptor.value;
-    /* Then we redefine the add method by setting a new value for the descriptor. We don't need to state the 
-    arguments of the method explicitly. It’s enough to define a list of arguments of type any. The arguments 
-    are then supplied automatically depending where the decorator is placed on. */
-    descriptor.value = function(...args: any[]) {
-        /* The original function is modified by checking for the TrailPrivilege.addPoints and incase the user 
-        has a right to add points… */
-        if(currentUser.privileges.has(TrailPrivilege.addPoints)) {
-            /* if it has, we execute the original method implementation and return originalValue. For 
-            invoking the original method we use the apply method on orginalValue and provide a "this" 
-            reference and the original method arguments as parameters. */
-            return originalValue.apply(this, args);
+/* Adding different decorators for different methods is not practical in case the decorators are going to be 
+similer. In our case of adding a decorator for the totalDistance to serve the same purpose the only thing 
+that changes is a required privilege. In order to avoid redefining similer decorators for each method, we use 
+the decorator factroy to customize a method decorator depending on the particular method. For the 
+implementation rap the code in a factory function methodRequiresPermission with a privilege as argument and 
+return the method decorator function requireAddPointPermission */
+function methodRequiresPermission(privilege: TrailPrivilege) {
+    /* The function/decorator requireAddPointPermission has to be implemented as a method decorator. A method 
+    decorator has three arguments that are provided automatically by placing a decorator on a class method. 
+    The first argument is a target which is a prototype of the class. The second is a property Key which is a 
+    method name. And a third is Property Descriptor which contains information about the method, in 
+    particular it contains the value property with the method implementation. */
+    return function requireAddPointPermission(target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
+        /* For an implementation of the decorator we first save the original method implementation stored in 
+        descriptor.value in a constant orginalValue. */
+        const originalValue = descriptor.value;
+        /* Then we redefine the add method by setting a new value for the descriptor. We don't need to state 
+        the arguments of the method explicitly. It’s enough to define a list of arguments of type any. The 
+        arguments are then supplied automatically depending where the decorator is placed on. */
+        descriptor.value = function(...args: any[]) {
+            /* The original function is modified by checking for the TrailPrivilege.addPoints and incase the 
+            user has a right to add points…
+            Replace the hard coded TrailPrivilege.addPoints by privilege; the parameter of the decorator 
+            factory */
+            if(currentUser.privileges.has(privilege)) {
+                /* if it has, we execute the original method implementation and return originalValue. For 
+                invoking the original method we use the apply method on orginalValue and provide a "this" 
+                reference and the original method arguments as parameters. */
+                return originalValue.apply(this, args);
+            }
+            /* In case the user doesn't have the appropriate TrailPrivilege we log a message to the console 
+            to inform the user that he is not authorized to add points. */
+            else {
+                console.log("You are not authorized for this action!"); 
+            }
         }
-        /* In case the user doesn't have the appropriate TrailPrivilege we log a message to the console to 
-        inform the user that he is not authorized to add points. */
-        else {
-            console.log("You are not authorized to add points!"); 
-        }
+        return descriptor; 
     }
-    return descriptor; 
 }
 
 class Trail {
@@ -92,14 +103,16 @@ class Trail {
     set coordinates(newCoordinates : Point[]) { this._coordinates = newCoordinates; }
     constructor() { this._coordinates = []; }
 
-    /* Then we use a method decorator on the method add for checking the user permission to add points. A 
-    decorator is declared with the @ followed by function name (decorator function name). Since we declared 
-    the decorator at a class method; hence, it’s of type method decorator. */
-    @requireAddPointPermission 
+    /* Use a decorator factory function methodRequiresPermission and provide a required TrailPrivilege as an 
+    argument to the function. In this case the addPoints privilege. */
+    @methodRequiresPermission(TrailPrivilege.addPoints)
     add(point: Point) : Trail {
         this._coordinates.push(point);
         return this;
     }
+    /* The more generic version with a decorator factory can be used for the other method totalDistance as 
+    well */
+    @methodRequiresPermission(TrailPrivilege.getDistance)
     totalDistance() : number {
         let total = 0;
         for (let index = 1; index < this._coordinates.length; index++) {
@@ -112,7 +125,9 @@ class Trail {
 /* Test our Decorator function by creating a new trail */
 const trail = new Trail();
 trail.add(new Point(0,0));
+trail.add(new Point(1,1));
 console.log(trail.coordinates);
+console.log(trail.totalDistance());
 
 class Trek extends Trail {
     add(observation: Observation) : Trail {
@@ -124,5 +139,8 @@ class Trek extends Trail {
 /* Test our Decorator function by creating a new trek */
 let trek = new Trek();
 const obs1 = new Observation(0, 0, new Date(), 1000);
+const obs2 = new Observation(1, 1, new Date(), 2000);
 trek.add(obs1);
+trek.add(obs2);
 console.log(trek.coordinates);
+console.log(trek.totalDistance());
