@@ -97,10 +97,41 @@ function methodRequiresPermission(privilege: TrailPrivilege) {
     }
 }
 
+/* Define decorator factory accordingly */
+function accessorRequiersPermission(readPrivilege: TrailPrivilege, writePrivilege: TrailPrivilege) {
+    /* Return an accessor decorator which also has the three parameters; target, propertyKey and descriptor 
+    like the method decorator. Remember that in our method decorator, the original method implementation was 
+    stored in descriptor.value and our job is to overwrite the value property with a modified method 
+    implementation. In the accessor decorator we don't use descriptor.value, instead we have the two 
+    properties; descriptor get and descriptor set for the Getter and the Setter implementation. */
+    return function (target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
+        /* For checking permission on the getter we look if the user doesn’t have the read privilege... */
+        if(!currentUser.privileges.has(readPrivilege)) {
+            /* In such a case we overwrite the getter and log a message to the console. */
+            descriptor.get = () => console.log(`No permission to read property ${propertyKey}.`);
+        }
+        /* In case the user has a privilege, we don't need to do anything. */
+
+        /* For checking permission on the setter, we do the same but with slight modification. */
+        if(!currentUser.privileges.has(writePrivilege)) {
+            /* In such a case we overwrite the getter and log a message to the console. */
+            descriptor.set = () => console.log(`No permission to write property ${propertyKey}.`);
+        }
+        return descriptor;
+    }
+}
+
 class Trail {
     private _coordinates: Point[] = []
+
+    /* Accessor Decorators use the same syntax as method decorator. Although in our example we have one 
+    accessor pair get coordinates() and set coordinates(), we use a decorator factory as like before. Lets 
+    call the factory function accessorRequiersPermission and provide two arguments; a readCoordinates and 
+    writeCoordinates trail privileges.*/
+    @accessorRequiersPermission(TrailPrivilege.readCoordinates, TrailPrivilege.writeCoordinates)
     get coordinates() : Point[] { return this._coordinates; }
     set coordinates(newCoordinates : Point[]) { this._coordinates = newCoordinates; }
+    
     constructor() { this._coordinates = []; }
 
     /* Use a decorator factory function methodRequiresPermission and provide a required TrailPrivilege as an 
