@@ -166,6 +166,34 @@ function logProperty(target: Object, propertyKey: string) {
 
 }
 
+/* The class decorator function has just a single argument of type class represent by the class constructor 
+and a return value of the same type. To increase readability of our code, first define a type Constructor 
+which is a function with a proceeding "new" keyword. The function could take any number of arguments of type 
+any so we use a rest parameter here. And we also don't know about the return type So we use the any type as 
+well. */
+type Constructor = new(...args: any[]) => any;
+/* Then define the class decorator function with an argument target of type Constructor and a return value 
+which is also of type constructor. */
+function logInstanceCreation (target: Constructor) : Constructor {
+    /* For the implementation we don't overwrite the whole class, instead we extend the original class 
+    described by target. Therefore, define a class C extending the target class and just overwrite the 
+    class constructor. */
+    class C extends target {
+        constructor(...args: any[]) {
+            /* log the message that a new instance of the target class was created and add the arguments 
+            of the constructor as well. Then call the constructor of the target class by super followed by
+            the arguments in brackets. */
+            console.log("New "+ target.name + " Instance Created with Arguments: " + args.join(","));
+            super(...args);
+            
+        }
+    }
+    return C;
+}
+
+/* Lets now take a look at a class decorator which logs when an instance of the class is created. We call the 
+decorator logInstanceCreation. */
+@logInstanceCreation
 class Trail {
 
     /* Obviously, it doesn't make much sense to check the permission for the private property "_coordinates". 
