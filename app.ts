@@ -238,6 +238,7 @@ trail.add(new Point(1,1));
 console.log(trail.coordinates);
 console.log(trail.totalDistance());
 
+@logInstanceCreation
 class Trek extends Trail {
     add(observation: Observation) : Trail {
         super.add(observation)
