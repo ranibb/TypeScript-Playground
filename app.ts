@@ -1,3 +1,5 @@
+import { get } from "https";
+
 /* The Classes point, Observation, Trail and Trek are explained in Classes-and-Object-Oriented-Design 
 branch of this repository. */
 
@@ -66,14 +68,14 @@ return the method decorator function requireAddPointPermission (change the funct
 more generic since it is now being used by "add" and "totalDistance" methods to check user permissions). 
 Actyally, we can get rid of the function name and just return a function without a name. */
 function methodRequiresPermission(privilege: TrailPrivilege) {
-    /* The function/decorator requireAddPointPermission has to be implemented as a method decorator. A method 
+    /* The function/decorator requirePermission has to be implemented as a method decorator. A method 
     decorator has three arguments that are provided automatically by placing a decorator on a class method. 
-    The first argument is a target which is a prototype of the class. The second is a property Key which is a 
-    method name. And a third is Property Descriptor which contains information about the method, in 
+    The first argument is a target which is a prototype of the class. The second is a propertyKey which is 
+    the method name. And the third is a descriptor which contains information about the method, in 
     particular it contains the value property with the method implementation. */
     return function requirePermission(target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
         /* For an implementation of the decorator we first save the original method implementation stored in 
-        descriptor.value in a constant orginalValue. */
+        "descriptor.value" in a constant orginalValue. */
         const originalValue = descriptor.value;
         /* Then we redefine the add method by setting a new value for the descriptor. We don't need to state 
         the arguments of the method explicitly. It’s enough to define a list of arguments of type any. The 
@@ -124,7 +126,52 @@ function accessorRequiersPermission(readPrivilege: TrailPrivilege, writePrivileg
     }
 }
 
+/* Unlike the method and accessor decorators, the property decorator takes only two arguments; target and 
+propertyKey. target represents the object and propertyKey represents the name of the property. */
+function logProperty(target: Object, propertyKey: string) {
+
+    /* So, the first step in the decorator implementation is to retrieve the value of the property by target 
+    followed by the property key in square brackets.*/
+    let value = target[propertyKey];
+
+    /* The next steps are to delete and redefine this property. This is done by static methods on the 
+    reflect object. The reflect object provides methods for some common operations on classes and 
+    functions like defining new properties, applying functions or checking if a class has a particular 
+    property. In our situation, first call the method deleteProperty with the target and propertyKey as 
+    arguments in order to delete the _coordinates property.*/
+    Reflect.deleteProperty(target, propertyKey);
+
+    /* Next, redefine the property by invoking the method defineProperty with the arguments: target, 
+    propertyKey and an object of attributes specifically the get and set attributes. */
+    Reflect.defineProperty(target, propertyKey, {
+
+        /* Thus we define the property by a getter and a setter. To start with implementation that yields 
+        the original result we define the getter as a function which returns the value of our property. Inside 
+        the getter we can modify the behavior of the property. In our example, we just log when get is called. 
+        By running this code, check that in the console messages for get operations are now shown. */
+        get: function() {
+            console.log("Get value: ", value);
+            return value;
+        },
+
+        /* And we define a setter as a function which takes a newValue as parameter and sets the value to a 
+        newValue. Inside the setter we can modify the behavior of the property. In our example, we just log 
+        when set is called. By running this code, check that in the console messages for set operations are 
+        now shown. */
+        set: function(newValue) {
+            console.log("Set value: ", value);
+            value = newValue;
+        }
+    })
+
+}
+
 class Trail {
+
+    /* Obviously, it doesn't make much sense to check the permission for the private property "_coordinates". 
+    Therefore, we use a simple logging functionality as illustration for the property decorator type. In 
+    front of the private property "_coordinates" we add a property decorator called "logProperty". */
+    @logProperty
     private _coordinates: Point[] = []
 
     /* Accessor Decorators use the same syntax as method decorator. Although in our example we have one 
