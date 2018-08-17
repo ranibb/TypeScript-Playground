@@ -58,18 +58,20 @@ const currentUser: User = { userID: "TS10298",
                             )};
 
 /* Adding different decorators for different methods is not practical in case the decorators are going to be 
-similer. In our case of adding a decorator for the totalDistance to serve the same purpose the only thing 
-that changes is a required privilege. In order to avoid redefining similer decorators for each method, we use 
-the decorator factroy to customize a method decorator depending on the particular method. For the 
+similar. In our case of adding a decorator for the totalDistance to serve the same purpose, the only thing 
+that change is a required privilege. In order to avoid redefining similar decorators for each method, we use 
+the decorator factory to customize a method decorator depending on the particular method. For the 
 implementation rap the code in a factory function methodRequiresPermission with a privilege as argument and 
-return the method decorator function requireAddPointPermission */
+return the method decorator function requireAddPointPermission (change the function name to some thing 
+more generic since it is now being used by "add" and "totalDistance" methods to check user permissions). 
+Actyally, we can get rid of the function name and just return a function without a name. */
 function methodRequiresPermission(privilege: TrailPrivilege) {
     /* The function/decorator requireAddPointPermission has to be implemented as a method decorator. A method 
     decorator has three arguments that are provided automatically by placing a decorator on a class method. 
     The first argument is a target which is a prototype of the class. The second is a property Key which is a 
     method name. And a third is Property Descriptor which contains information about the method, in 
     particular it contains the value property with the method implementation. */
-    return function requireAddPointPermission(target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
+    return function requirePermission(target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
         /* For an implementation of the decorator we first save the original method implementation stored in 
         descriptor.value in a constant orginalValue. */
         const originalValue = descriptor.value;
@@ -101,16 +103,17 @@ function methodRequiresPermission(privilege: TrailPrivilege) {
 function accessorRequiersPermission(readPrivilege: TrailPrivilege, writePrivilege: TrailPrivilege) {
     /* Return an accessor decorator which also has the three parameters; target, propertyKey and descriptor 
     like the method decorator. Remember that in our method decorator, the original method implementation was 
-    stored in descriptor.value and our job is to overwrite the value property with a modified method 
-    implementation. In the accessor decorator we don't use descriptor.value, instead we have the two 
-    properties; descriptor get and descriptor set for the Getter and the Setter implementation. */
+    stored in "descriptor.value" and our job is to overwrite the value property with a modified method 
+    implementation. In the accessor decorator we don't use "descriptor.value", instead we have the two 
+    properties; "descriptor.get" and "descriptor.set" for the Getter and the Setter implementation. */
     return function (target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
         /* For checking permission on the getter we look if the user doesn’t have the read privilege... */
         if(!currentUser.privileges.has(readPrivilege)) {
             /* In such a case we overwrite the getter and log a message to the console. */
             descriptor.get = () => console.log(`No permission to read property ${propertyKey}.`);
         }
-        /* In case the user has a privilege, we don't need to do anything. */
+        /* In case the user has a privilege, we don't need to do anything. We leave the "descriptor.get" as
+        it was. */
 
         /* For checking permission on the setter, we do the same but with slight modification. */
         if(!currentUser.privileges.has(writePrivilege)) {
