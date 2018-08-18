@@ -191,6 +191,53 @@ function logInstanceCreation (target: Constructor) : Constructor {
     return C;
 }
 
+/* In the implementation of the parameter decorator we actually don't log anything. Instead, we store the 
+information that the point parameter is marked for logging. The logging itself is in then in a method 
+decorator. Our first approach is to store the information which parameters are marked for logging directly in 
+the object. To this end we will use a property after target object, to prevent spelling errors we store the 
+property's name in a constant. Let’s call the property logParamsMeta indicating that it’s a kind of meta data 
+stored in the object. */
+const logParamsMeta = "logParamsMeta";
+
+/* A parameter decorator has the three arguments: target, propertyKey and index. These variables are of course 
+provided automatically for us depending where the decorator is placed on. The index argument is of type number 
+and contains the position of the marked parameter in a propertyKey's parameter list. In our case, the 
+propertyKey would be the add method as we marked the parameter in the add method. And the point parameter is 
+the first argument in this method. So, index will be set to 0.*/
+function logParam(target: Object, propertyKey: string, index: number) {
+    /* For the implementation of the parameter decorator, we first define a variable logParams which holds 
+    the data in a logParamsMeta property. There are different options for the type of this data: One option 
+    is to use a TypeScript Map with a propertykey as a string for the key and the marked parameter position 
+    as a set of numbers for the value. In our example, the map should have "add" as a key and a set containing 
+    0 as it's corresponding value. So, our task is to update logParams to reflect this information. */
+    let logParams = target[logParamsMeta] as Map<string, Set<number>>;
+    /* First handle a case where logParams is not defined yet. */
+    if(!logParams) {
+        /* In that case, assign the variable to a new empty map. */
+        logParams = new Map<string, Set<number>>();
+    }
+    /* The next step is to check weather the map has the propertyKey defined already. */
+    if(!logParams.has(propertyKey)) {
+        /* If that not the case, set a new key value pair where the key is a propertykey and a value is a set 
+        with index as its only member. */
+        logParams.set(propertyKey, new Set([index]));
+    }
+    /* On the other hand if the propertyKey exists already... */
+    else {
+        /* get the currently stored indexSet for this propertyKey. */
+        let indexSet = logParams.get(propertyKey) as Set<number>;
+        /* Add the index to the current indexSet...  */
+        indexSet.add(index);
+        /* And reset the key value pair of propertyKey and indexSet */
+        logParams.set(propertyKey, indexSet);
+    }
+    /* Finally, write the updated content of logParams back to the instance property logParamsMeta */
+    target[logParamsMeta] = logParams;
+    /* At this point, we could check what is the content of logParams by printing it to the console. */
+    console.log(logParams);
+    /* As expected the variable contains a map with add as key and a set of just 0 as value. */
+}
+
 /* Lets now take a look at a class decorator which logs when an instance of the class is created. We call the 
 decorator logInstanceCreation. */
 @logInstanceCreation
@@ -215,7 +262,11 @@ class Trail {
     /* Use a decorator factory function methodRequiresPermission and provide a required TrailPrivilege as an 
     argument to the function. In this case the addPoints privilege. */
     @methodRequiresPermission(TrailPrivilege.addPoints)
-    add(point: Point) : Trail {
+    /* The parameter decorator defers from the other decorators since it is not used stand-alone but only in
+    combination with other decorators such as a method decorator. Let’s log the parameter's marked by the 
+    parameter decorator logParam. In our example, mark the point argument of the method add by this 
+    decorator. */
+    add(@logParam point: Point) : Trail {
         this._coordinates.push(point);
         return this;
     }
