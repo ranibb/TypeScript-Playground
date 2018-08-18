@@ -238,6 +238,34 @@ function logParam(target: Object, propertyKey: string, index: number) {
     /* As expected the variable contains a map with add as key and a set of just 0 as value. */
 }
 
+/* The implementation of the logMethodParams decorator function is similar to the requirePermission function 
+presented at the first of this lesson. */
+function logMethodParams(target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
+
+    /* Retrieve the mete data about marked parameters right at the start of the implementation. What we are 
+    interested in are the indexes of the marked parameters of the member with name propertyKey. Moreover, 
+    convert the set of indexes into an array by using the rest operator within square brackets. */
+    const indexSet = [...target[logParamsMeta].get(propertyKey)]
+
+    /* For an implementation of the decorator we first save the original method implementation stored in 
+    "descriptor.value" in a constant orginalValue. */
+    const originalValue = descriptor.value;
+
+    /* Then we redefine the add method by setting a new value for the descriptor. We don't need to state 
+    the arguments of the method explicitly. It’s enough to define a list of arguments of type any. The 
+    arguments are then supplied automatically depending where the decorator is placed on. */
+    descriptor.value = function(...args: any[]) {
+
+        /* Add a logging statement to print the marked parameter inputs of the method with name propertyKey. 
+        To retrieve the values of marked parameters from the indexes, use the Map method on the array indexSet 
+        to map the indexes to the corresponding parameter values. Also join all input values contained in the 
+        resulting array of values by the array's join method. */
+        console.log("Input for method " + propertyKey + ": " + indexSet.map((index) => args[index].toString()).join(", "));
+
+        return originalValue.apply(this, args);
+    }
+    return descriptor;
+}
 /* Lets now take a look at a class decorator which logs when an instance of the class is created. We call the 
 decorator logInstanceCreation. */
 @logInstanceCreation
@@ -259,6 +287,9 @@ class Trail {
     
     constructor() { this._coordinates = []; }
 
+    /* We have to implement the actual logging of the marked parameter with an additional method decorator 
+    placed on the add method. Let's call it logMethodParams. */
+    @logMethodParams
     /* Use a decorator factory function methodRequiresPermission and provide a required TrailPrivilege as an 
     argument to the function. In this case the addPoints privilege. */
     @methodRequiresPermission(TrailPrivilege.addPoints)
