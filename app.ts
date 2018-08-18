@@ -1,7 +1,16 @@
-import { get } from "https";
+/* Meta Data Reflection which enables us to retrive some kind of meta deta. For instance, type meta deta. And 
+also to store and retrive our own meta data on a particular target. The additional reflection functionalities 
+are provided ny the node package refelect-metadata which extends the reflect object that use already earlier 
+in this lesson. So, lets "npm install refelect-metadata -S" to add the package to our node project. And import the 
+package with an import statment  */
+import "reflect-metadata";
 
-/* The Classes point, Observation, Trail and Trek are explained in Classes-and-Object-Oriented-Design 
-branch of this repository. */
+/* To make intelesense available for this package, additionally install the corrosponding @types package as 
+developer indepenacy: "npm install @types/reflect-metadata -D". Now check that some addetional memebers have 
+been added to the Reflect object. For example defineProperty and getMetadata. We will use these two functions 
+to store our own meta data and retrive the stored meta data. */
+Reflect.defineProperty
+Reflect.getMetadata
 
 interface Printable {
     toString(): string
@@ -205,12 +214,11 @@ and contains the position of the marked parameter in a propertyKey's parameter l
 propertyKey would be the add method as we marked the parameter in the add method. And the point parameter is 
 the first argument in this method. So, index will be set to 0.*/
 function logParam(target: Object, propertyKey: string, index: number) {
-    /* For the implementation of the parameter decorator, we first define a variable logParams which holds 
-    the data in a logParamsMeta property. There are different options for the type of this data: One option 
-    is to use a TypeScript Map with a propertykey as a string for the key and the marked parameter position 
-    as a set of numbers for the value. In our example, the map should have "add" as a key and a set containing 
-    0 as it's corresponding value. So, our task is to update logParams to reflect this information. */
-    let logParams = target[logParamsMeta] as Map<string, Set<number>>;
+    /* In the implementation of the parameter decorator, We stored some meta data directly in the target 
+    object. we can now exchange that code and store the data by use of meta data reflection. So, in the first 
+    line of the parameter decorator implementation, use the getMetadata method to retrieve the meta data with 
+    key logParamsMeta stored on the target instead of reading the data from a property as we did before. */
+    let logParams = Reflect.getMetadata(logParamsMeta, target) as Map<string, Set<number>>;
     /* First handle a case where logParams is not defined yet. */
     if(!logParams) {
         /* In that case, assign the variable to a new empty map. */
@@ -231,8 +239,8 @@ function logParam(target: Object, propertyKey: string, index: number) {
         /* And reset the key value pair of propertyKey and indexSet */
         logParams.set(propertyKey, indexSet);
     }
-    /* Finally, write the updated content of logParams back to the instance property logParamsMeta */
-    target[logParamsMeta] = logParams;
+    /* After we updated the meta data invoke the method defineMetadata to store the meta data on the target. */
+    Reflect.defineMetadata(logParamsMeta, logParams, target);
     /* At this point, we could check what is the content of logParams by printing it to the console. */
     console.log(logParams);
     /* As expected the variable contains a map with add as key and a set of just 0 as value. */
@@ -243,9 +251,10 @@ presented at the first of this lesson. */
 function logMethodParams(target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
 
     /* Retrieve the mete data about marked parameters right at the start of the implementation. What we are 
-    interested in are the indexes of the marked parameters of the member with name propertyKey. Moreover, 
-    convert the set of indexes into an array by using the rest operator within square brackets. */
-    const indexSet = [...target[logParamsMeta].get(propertyKey)]
+    interested in are the indexes of the marked parameters of the member with name propertyKey. There we use 
+    again getMetadata method to retrieve the meta data with key logParamsMeta. Moreover, convert the set of 
+    indexes into an array by using the rest operator within square brackets. */
+    const indexSet = [...Reflect.getMetadata(logParamsMeta, target).get(propertyKey)]
 
     /* For an implementation of the decorator we first save the original method implementation stored in 
     "descriptor.value" in a constant orginalValue. */
