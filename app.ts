@@ -86,65 +86,71 @@ function accessorRequiersPermission(readPrivilege: TrailPrivilege, writePrivileg
     }
 }
 
-function logProperty(target: Object, propertyKey: string) {
-    let value = target[propertyKey];
-    Reflect.deleteProperty(target, propertyKey);
-    Reflect.defineProperty(target, propertyKey, {
-        get: function() {
-            console.log("Get value: ", value);
-            return value;
-        },
-        set: function(newValue) {
-            console.log("Set value: ", value);
-            value = newValue;
+/* Define a namespace "Logging" and copy the related decorators functions into the it. When we try to access 
+one of the decorator’s functions by the "." syntax, we still get an error that the element doesn't exist. The 
+reason is that namespace create their own scope and no elements are available outside of the namespace unless 
+we explicitly mark them by the export keyword. After that we can access the decorators in the Trail class 
+qualifying them by the name Logging. */
+namespace Logging {
+    export function logProperty(target: Object, propertyKey: string) {
+        let value = target[propertyKey];
+        Reflect.deleteProperty(target, propertyKey);
+        Reflect.defineProperty(target, propertyKey, {
+            get: function() {
+                console.log("Get value: ", value);
+                return value;
+            },
+            set: function(newValue) {
+                console.log("Set value: ", value);
+                value = newValue;
+            }
+        })
+    }
+
+    
+    type Constructor = new(...args: any[]) => any;
+    export function logInstanceCreation (target: Constructor) : Constructor {
+        class C extends target {
+            constructor(...args: any[]) {
+                console.log("New "+ target.name + " Instance Created with Arguments: " + args.join(","));
+                super(...args);
+            }
         }
-    })
-}
-
-
-type Constructor = new(...args: any[]) => any;
-function logInstanceCreation (target: Constructor) : Constructor {
-    class C extends target {
-        constructor(...args: any[]) {
-            console.log("New "+ target.name + " Instance Created with Arguments: " + args.join(","));
-            super(...args);
+        return C;
+    }
+    
+    const logParamsMeta = "logParamsMeta";
+    export function logParam(target: Object, propertyKey: string, index: number) {
+        let logParams = Reflect.getMetadata(logParamsMeta, target) as Map<string, Set<number>>;
+        if(!logParams) {
+            logParams = new Map<string, Set<number>>();
         }
+        if(!logParams.has(propertyKey)) {
+            logParams.set(propertyKey, new Set([index]));
+        }
+        else {
+            let indexSet = logParams.get(propertyKey) as Set<number>;
+            indexSet.add(index);
+            logParams.set(propertyKey, indexSet);
+        }
+        Reflect.defineMetadata(logParamsMeta, logParams, target);
+        console.log(logParams);
     }
-    return C;
+    
+    export function logMethodParams(target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
+        const indexSet = [...Reflect.getMetadata(logParamsMeta, target).get(propertyKey)]
+        const originalValue = descriptor.value;
+        descriptor.value = function(...args: any[]) {
+            console.log("Input for method " + propertyKey + ": " + indexSet.map((index) => args[index].toString()).join(", "));
+            return originalValue.apply(this, args);
+        }
+        return descriptor;
+    }
 }
 
-const logParamsMeta = "logParamsMeta";
-function logParam(target: Object, propertyKey: string, index: number) {
-    let logParams = Reflect.getMetadata(logParamsMeta, target) as Map<string, Set<number>>;
-    if(!logParams) {
-        logParams = new Map<string, Set<number>>();
-    }
-    if(!logParams.has(propertyKey)) {
-        logParams.set(propertyKey, new Set([index]));
-    }
-    else {
-        let indexSet = logParams.get(propertyKey) as Set<number>;
-        indexSet.add(index);
-        logParams.set(propertyKey, indexSet);
-    }
-    Reflect.defineMetadata(logParamsMeta, logParams, target);
-    console.log(logParams);
-}
-
-
-function logMethodParams(target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
-    const indexSet = [...Reflect.getMetadata(logParamsMeta, target).get(propertyKey)]
-    const originalValue = descriptor.value;
-    descriptor.value = function(...args: any[]) {
-        console.log("Input for method " + propertyKey + ": " + indexSet.map((index) => args[index].toString()).join(", "));
-        return originalValue.apply(this, args);
-    }
-    return descriptor;
-}
-
-@logInstanceCreation
+@Logging.logInstanceCreation
 class Trail {
-    @logProperty
+    @Logging.logProperty
     private _coordinates: Point[] = []
     @accessorRequiersPermission(TrailPrivilege.readCoordinates, TrailPrivilege.writeCoordinates)
     get coordinates() : Point[] {
@@ -156,9 +162,9 @@ class Trail {
     constructor() {
         this._coordinates = [];
     }
-    @logMethodParams
+    @Logging.logMethodParams
     @methodRequiresPermission(TrailPrivilege.addPoints)
-    add(@logParam point: Point) : Trail {
+    add(@Logging.logParam point: Point) : Trail {
         this._coordinates.push(point);
         return this;
     }
@@ -178,7 +184,7 @@ trail.add(new Point(1,1));
 console.log(trail.coordinates);
 console.log(trail.totalDistance());
 
-@logInstanceCreation
+@Logging.logInstanceCreation
 class Trek extends Trail {
     add(observation: Observation) : Trail {
         super.add(observation)
