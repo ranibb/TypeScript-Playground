@@ -13,5 +13,4 @@ We will start first with modules and we will see how to export and import module
 * Default Exports and Export =
 * Importing JavaScript Modules
 
-## Namespaces: Group variables or functions within a file
-In the Second part we cover Namespaces. Namespaces are similar than modules but they are defined within a file. We could for example group a couple of related functions under common namespace and put them on their own scope. The functions are then accessed from outside the namespace with the given name followed by a dot.
+Note: covering Namespaces subject on it's own branch.
