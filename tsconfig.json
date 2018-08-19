@@ -1,7 +1,12 @@
 {
     "compilerOptions": {
         "target": "es2018",
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "types": [
+            "reflect-metadata"
+          ]
     },
     "files": [
         "app.ts"
