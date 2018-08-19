@@ -22,7 +22,13 @@ logging decorators in separate files in that folder. Is efficient here to handle
 example, so let’s create a file logProperty.ts in the logging folder and move the logProperty decorator 
 function to that file. Then we import that function by "import" followed by a "name" that we like to use to
 reference the default export in our module followed by the module reference; the path to the file. */
-import logProperty from "./logging/logProperty"
+// import logProperty from "./logging/logProperty"
+
+/* For the import, write import logProperty followed by an equal sign and a require function with a module 
+reference as argument. Depending on our complier settings, the solution might not work and error might be  
+shown that exports or import assignments are not accepted. To fix this issue go to tsconfig.ts and add a 
+complier option "module" and set it to "commonjs". */
+import logProperty = require("./logging/logProperty");
 
 import "reflect-metadata";
 

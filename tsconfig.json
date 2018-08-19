@@ -6,7 +6,8 @@
         "emitDecoratorMetadata": true,
         "types": [
             "reflect-metadata"
-          ]
+          ],
+        "module": "commonjs"
     },
     "files": [
         "app.ts"
