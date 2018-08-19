@@ -28,7 +28,24 @@ reference the default export in our module followed by the module reference; the
 reference as argument. Depending on our complier settings, the solution might not work and error might be  
 shown that exports or import assignments are not accepted. To fix this issue go to tsconfig.ts and add a 
 complier option "module" and set it to "commonjs". */
-import logProperty = require("./logging/logProperty");
+// import logProperty = require("./logging/logProperty");
+
+/* Covering a scenario of a JavaScript module that we would like to import in our TypeScript project. In 
+most cases where we deal with 3rd party JavaScript libraries, this is not a big issue since usually Types 
+are made available by the project DefinitelyTyped and it can be installed by a npm install 
+@types/followed-by-package-name. Sometimes however, we might be faced with a problem that types are not 
+available yet, then in most cases we still can use such modules. Tosimulate this scenario, duplicate the file 
+logProperty from ts to js and put it on its own folder "logging_js". And within the new file remove the type 
+notations and the export = and add the export keyword in front of the function as we did before and import the 
+package as usual. If you npm start, an error occurs telling us that we use a JavaScript module without setting 
+the complier option; allowjs. This option enables us to compile not only TypeScript but also JavaScript files. 
+So open tsconfig.ts and add the option allowjs and set it to true. */
+import { logProperty } from './logging_js/logProperty';
+/* Now if you npm start it will work again, but note the drawback of this solution, when you invoke the 
+function logProperty, the two function's arguments are assumed to have type any. So, type checking doesn't 
+work anymore. To fix that, we could add a TypeScript declaration file containing type declarations for all 
+exports in the JavaScript file. In our example, create such a declaration file "logProperty.d.ts" in the 
+same folder of the JavaScript file and add in it the declarations for all exports in the JavaScript file.. */
 
 import "reflect-metadata";
 

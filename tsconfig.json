@@ -7,7 +7,8 @@
         "types": [
             "reflect-metadata"
           ],
-        "module": "commonjs"
+        "module": "commonjs",
+        "allowJs": true
     },
     "files": [
         "app.ts"
