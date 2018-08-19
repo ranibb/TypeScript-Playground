@@ -5,7 +5,15 @@ permission.ts and move the enum TrailPrivilege to the new file. Then we can impo
 explicitly list it in curly braces from the path to the other file. To proceed with our code reorganization 
 next move all the other related elements of permissions to the new file. Accordingly, import two decorators 
 functions within the curly braces. */
-import { TrailPrivilege, methodRequiresPermission, accessorRequiersPermission } from './permission';
+// import { TrailPrivilege, methodRequiresPermission, accessorRequiersPermission } from './permission';
+
+/* In case we import just a couple of elements, its a good practice to state the imports explicitly as we did. 
+However, if we want to import a large number of elements, its more convenient to import all experts of the 
+other file under a particular name used to access these elements. We do that by import "*" followed by "as" 
+and a "name" for accessing the imported elements, followed by the module reference; the path to the file. */
+import * as AC from "./permission"
+/* If you type the name AC followed by a dot, we then see the list of all imported elements. Now be aware to 
+change all the external references in our code to include the name AC */
 
 import "reflect-metadata";
 
@@ -99,7 +107,7 @@ function logMethodParams(target: Object, propertyKey: string, descriptor: Proper
 class Trail {
     @logProperty
     private _coordinates: Point[] = []
-    @accessorRequiersPermission(TrailPrivilege.readCoordinates, TrailPrivilege.writeCoordinates)
+    @AC.accessorRequiersPermission(AC.TrailPrivilege.readCoordinates, AC.TrailPrivilege.writeCoordinates)
     get coordinates() : Point[] { 
         return this._coordinates; 
     }
@@ -110,12 +118,12 @@ class Trail {
         this._coordinates = []; 
     }
     @logMethodParams
-    @methodRequiresPermission(TrailPrivilege.addPoints)
+    @AC.methodRequiresPermission(AC.TrailPrivilege.addPoints)
     add(@logParam point: Point) : Trail {
         this._coordinates.push(point);
         return this;
     }
-    @methodRequiresPermission(TrailPrivilege.getDistance)
+    @AC.methodRequiresPermission(AC.TrailPrivilege.getDistance)
     totalDistance() : number {
         let total = 0;
         for (let index = 1; index < this._coordinates.length; index++) {
