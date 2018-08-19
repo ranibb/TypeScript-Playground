@@ -15,6 +15,15 @@ import * as AC from "./permission"
 /* If you type the name AC followed by a dot, we then see the list of all imported elements. Now be aware to 
 change all the external references in our code to include the name AC */
 
+/* With the logging decorators we could deal in a similar way and put them in a logging module, but I want to 
+use the logging decorators to illustrate the concept of a default export. we should mark and export as default 
+if it is the only export in a module. In our case, first create a new folder named "logging" and put all the 
+logging decorators in separate files in that folder. Is efficient here to handle a case of logProperty as an
+example, so let’s create a file logProperty.ts in the logging folder and move the logProperty decorator 
+function to that file. Then we import that function by "import" followed by a "name" that we like to use to
+reference the default export in our module followed by the module reference; the path to the file. */
+import logProperty from "./logging/logProperty"
+
 import "reflect-metadata";
 
 interface Printable {
@@ -46,21 +55,6 @@ class Observation extends Point {
             at location: (${this.x}, ${this.y}),
             at the height of: ${this.height} m.`;
     }
-}
-
-function logProperty(target: Object, propertyKey: string) {
-    let value = target[propertyKey];
-    Reflect.deleteProperty(target, propertyKey);
-    Reflect.defineProperty(target, propertyKey, {
-        get: function() {
-            console.log("Get value: ", value);
-            return value;
-        },
-        set: function(newValue) {
-            console.log("Set value: ", value);
-            value = newValue;
-        }
-    })
 }
 
 type Constructor = new(...args: any[]) => any;
