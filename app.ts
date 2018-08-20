@@ -1,6 +1,6 @@
 /* 
 Starting with the code from Interfaces-Advanced-Topics branch we are going to do the following: 
-• Write EmployeeList as a Class
+• Write EmployeeList as a Class (Done)
 • Make the code generic, so it not only applies for employee data but any type of data
 • Remove the method managerFilter from the Class and provide a generic function singleValueFilter
 • Allow multiple filters to be supplied in the applyFilter method
@@ -29,22 +29,32 @@ interface EmployeeFilter {
     (e: Employee) : Boolean
 }
 
-interface EmployeeList extends Array<Employee> {
-    managerFilter : (isManager: Boolean) => EmployeeFilter
-    applyFilter : (filter: EmployeeFilter) => Employee[]
-}
+/* Replaced the interface EmployeeList and the function getEmployeeList by a class EmployeeList. Hence, 
+we define a class EmployeeList which extends an array of Employee. */
+class EmployeeList extends Array<Employee>{
 
-function getEmployeeList(employees: Employee[]) : EmployeeList {
+    /* The class constructor is responsible to initialize an EmployeeList by data (employees) in form of 
+    an Employee array */
+    constructor(employees: Employee[]) {
+        /* Within the constructor, call the super class and provide the Employee data as parameter for 
+        the super class constructor. Note the different ways to initialize an array; In our case, we 
+        choose the option to initialize with data provided as a rest parameter. So, we add a reset 
+        operator "..." in front of the initial data supplied as our own constructor parameter to covert 
+        the array into a list. */
+        super(...employees);
+    }
 
-    let list : EmployeeList = employees as EmployeeList;
-
-    list.managerFilter = function(isManager) {
+    /* Here we could add type annotations to make the code more transparent. The method managerFilter 
+    receives a Boolean parameter and returns and EmployeeFilter. */
+    managerFilter(isManager : boolean) : EmployeeFilter {
         return function(e) {
             return e.managementPosition == isManager ? true : false;
         }
     };
 
-    list.applyFilter = function(filter) {
+    /* Here we could add type annotations to make the code more transparent. The method applyFilter 
+    expects an EmployeeFilter as input.  */
+    applyFilter(filter : EmployeeFilter) {
         let filteredList : Employee[] = [];
         for (let employee of employees) {
             if(filter(employee)) {
@@ -53,11 +63,10 @@ function getEmployeeList(employees: Employee[]) : EmployeeList {
         }
         return filteredList;
     };
-
-    return list;
 }
 
-const employeeList : EmployeeList = getEmployeeList(employees);
+/* Replaced the function call by the creation of a new instance of type EmployeeList.  */
+const employeeList : EmployeeList = new EmployeeList(employees);
 
 const isManager = employeeList.managerFilter(true);
 console.log(employeeList.applyFilter(isManager));
