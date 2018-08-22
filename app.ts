@@ -3,7 +3,7 @@ Starting with the code from Interfaces-Advanced-Topics branch we are going to do
 • Write EmployeeList as a Class (Done)
 • Make the code generic, so it not only applies for employee data but any type of data (Done)
 • Remove the method manager Filter from the Class and provide a generic function singleValueFilter (Done)
-• Allow multiple filters to be supplied in the applyFilter method
+• Allow multiple filters to be supplied in the applyFilter method (Done)
 • Get employee data by asynchronous and put the employee data service in a separate module
 */
 
@@ -17,6 +17,7 @@ interface Employee {
 
 const employees : Employee[] = [
     {employeeID: 1, department: "IT", managementPosition: false, workExperience: 2, gender: "M"},
+    {employeeID: 8, department: "IT", managementPosition: false, workExperience: 3, gender: "F"},
     {employeeID: 2, department: "IT", managementPosition: false, workExperience: 5, gender: "M"},
     {employeeID: 3, department: "IT", managementPosition: false, workExperience: 1, gender: "M"},
     {employeeID: 4, department: "IT", managementPosition: false, workExperience: 9, gender: "M"},
@@ -29,7 +30,7 @@ const employees : Employee[] = [
 data the filter is working on. */
 interface Filter<T> {
     /* A filter of for data of type T is a function which maps data of type T to true or false. */
-    (e: T) : Boolean
+    (e: T) : boolean //fixed
 }
 
 /* Rename the class to List and add a generic type varibale T within angular brackets. In a generic 
@@ -51,11 +52,20 @@ class List<T> extends Array<T>{
     class. */
 
     /* Here we could add type annotations to make the code more transparent. The method applyFilter 
-    expects an EmployeeFilter as input.  */
-    applyFilter(filter : Filter<T>) {
+    expects an Employee Filter as input, but to enable multiple filters as input, we can define the 
+    method input as a rest parameter "...filter" which is made available as an array of filters on 
+    data type T within the method implementation. */
+    applyFilter(...filters : Filter<T>[]) {
         let filteredList : T[] = [];
         for (let item of this) {
-            if(filter(item)) {
+            /* The condition for adding items to the filtered list is then a logical conjunction of the 
+            individual filter conditions. For that we could use the array method "every" on the filters 
+            array. Remember that the "every" method takes a function as input describing how each array 
+            element evaluates to true or false. In our case, a single filter yields true if the filter 
+            function returns true when applied to the specific item.
+            note: Since we used the reset operator the original code for testing the filter should work 
+            as before. */
+            if(filters.every(filter => filter(item))) {
                 filteredList.push(item);
             }
         }
@@ -88,8 +98,18 @@ now inferred from the Employee type.
 We set key to "managementPosition" and value to true. So, the isManager filter selects Employee items with 
 managementPosition equals true. */
 const isManager = singleValueFilter<Employee>("managementPosition", true);
+console.log(`
+--- Filter the data by filter isManager ---
+`);
 console.log(employeeList.applyFilter(isManager));
 /* Use the function to define another filter such as isFemale that selects all female employees. */
 const isFemale = singleValueFilter<Employee>("gender", "F");
 /* Now filter the data by isFemale */
+console.log(`
+--- Filter the data by filter isFemale ---
+`);
 console.log(employeeList.applyFilter(isFemale));
+console.log(`
+--- Filter the data by multiple filters: isManager & isFemale ---
+`);
+console.log(employeeList.applyFilter(isManager, isFemale));

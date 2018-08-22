@@ -21,4 +21,6 @@
 
 • Allow multiple filters to be supplied in the applyFilter method
 
+    At the end of the last excercise, we creaed two filters and applied each filter to test pur generic function singleValueFilter. Now what about a combination of filters? How to change the code to enable filtering the Employee data with multiple filters whcih are then applied simultansoly?
+
 • Get employee data by asynchronous and put the employee data service in a separate module
