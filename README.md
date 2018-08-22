@@ -21,6 +21,8 @@
 
 • Allow multiple filters to be supplied in the applyFilter method
 
-    At the end of the last excercise, we creaed two filters and applied each filter to test pur generic function singleValueFilter. Now what about a combination of filters? How to change the code to enable filtering the Employee data with multiple filters whcih are then applied simultansoly?
+    At the end of the last exercise, we created two filters and applied each filter to test our generic function singleValueFilter. Now what about a combination of filters? How to change the code to enable filtering the Employee data with multiple filters which are then applied simultaneously?
 
 • Get employee data by asynchronous and put the employee data service in a separate module
+
+    Use asynchronous programming to retrieve Employee data and to put the Employee data service within a separate module. To make that more precise, first write an asynchronous function which returns the Employee data after simulated delay of 2 seconds, when done, observe that it’s impossible to use the return of this function in the constructor of the class, since a class constructor can't create a promise of the instance but only the instance itself. So, you will have to write a sperate factory method returning a promise of a list and use this factory method to create a promise of an Employee list. And finally, move the asynchronous function providing the Employee data into a separate module; employeeService.

@@ -15,16 +15,31 @@ interface Employee {
     gender: string
 }
 
-const employees : Employee[] = [
-    {employeeID: 1, department: "IT", managementPosition: false, workExperience: 2, gender: "M"},
-    {employeeID: 8, department: "IT", managementPosition: false, workExperience: 3, gender: "F"},
-    {employeeID: 2, department: "IT", managementPosition: false, workExperience: 5, gender: "M"},
-    {employeeID: 3, department: "IT", managementPosition: false, workExperience: 1, gender: "M"},
-    {employeeID: 4, department: "IT", managementPosition: false, workExperience: 9, gender: "M"},
-    {employeeID: 5, department: "IT", managementPosition: false, workExperience: 7, gender: "M"},
-    {employeeID: 6, department: "IT", managementPosition: true, workExperience: 12, gender: "M"},
-    { employeeID: 7, department: "IT", managementPosition: true, workExperience: 9, gender: "F"}
-];
+/* We create a function getEmployeeData which returns a promise of an Employee array. */
+function getEmployeeData() : Promise<Employee[]> {
+    /* Within this function we have to return a new promise. As we know the promise has a resolve and a 
+    reject parameters to describe the behavior in a success and error cases. Since we provide some dummy 
+    data in-place, we can't get an error and therefore ignore the reject case. For the success case, we 
+    resolve with our dummy data but with a delay of 2 seconds. For that, we use a setTimeout function with 
+    a function to call as a first parameter and a delay of 2000 milliseconds as a second parameter. After 2 
+    seconds, the Employee data is defined as before, so we just copy the original code inside. */
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const employees : Employee[] = [
+                {employeeID: 1, department: "IT", managementPosition: false, workExperience: 2, gender: "M"},
+                {employeeID: 8, department: "IT", managementPosition: false, workExperience: 3, gender: "F"},
+                {employeeID: 2, department: "IT", managementPosition: false, workExperience: 5, gender: "M"},
+                {employeeID: 3, department: "IT", managementPosition: false, workExperience: 1, gender: "M"},
+                {employeeID: 4, department: "IT", managementPosition: false, workExperience: 9, gender: "M"},
+                {employeeID: 5, department: "IT", managementPosition: false, workExperience: 7, gender: "M"},
+                {employeeID: 6, department: "IT", managementPosition: true, workExperience: 12, gender: "M"},
+                { employeeID: 7, department: "IT", managementPosition: true, workExperience: 9, gender: "F"}
+            ];
+            /* And we resolve the promise with the Employee data */
+            resolve(employees)
+        }, 2000);
+    })
+}
 
 /* Rename the interface and add a generic type varaible T within angular brackets which represents the 
 data the filter is working on. */
@@ -46,6 +61,20 @@ class List<T> extends Array<T>{
         operator "..." in front of the initial data supplied as our own constructor parameter to covert 
         the array into a list. */
         super(...data);
+    }
+    /* We have to add a factory method to the List class which creates a promise of a list. So, we 
+    define a static method CreateAsync that takes a promise of an array of type T as input and returns 
+    a promise of a List of type T */
+    static CreateAsync<T>(data: Promise<T[]>) : Promise<List<T>> {
+        /* We define a new Promise as usuall. */
+        return new Promise ((resolve, reject) => {
+            /* And in a success case we wait until the data promised as input resolves and "then" we 
+            resolve our own promise with a List object that we create by calling the constructor function 
+            with the resolved input data as parameter. */
+            data.then((data) => {
+                resolve(new List(data));
+            })
+        })
     }
 
     /* Since the managerFilter doesn't make sense in the generic case, delete this method from the 
@@ -86,30 +115,36 @@ function singleValueFilter<T>(key: keyof T , value: T[keyof T]) : Filter<T> {
     }
 }
 
-/* Update the code to creaet a list instance. Here, we can provide the Employee type for the generic type 
-variable `new List<Employee>(employees)`, but we don't need to do so, since a type could also be infered 
-from the data we supplied in the constructor function. */
-// const employeeList : List<Employee> = new List<Employee>(employees);
-const employeeList : List<Employee> = new List(employees);
+/* Update the definition of our employeeList object to be a promise of an Employee List; Call the static 
+method CreateAsync and provide the function getEmployeeData as input which returns a promise of an 
+Employee array. */
+const employeeList = List.CreateAsync(getEmployeeData());
 
-/* Now we can generate the manager filter by applying the generic function on the Employee type.
-Note: By hovering over the function call "singleValueFilter", note that the types of the parameters are 
-now inferred from the Employee type.
-We set key to "managementPosition" and value to true. So, the isManager filter selects Employee items with 
-managementPosition equals true. */
-const isManager = singleValueFilter<Employee>("managementPosition", true);
-console.log(`
---- Filter the data by filter isManager ---
-`);
-console.log(employeeList.applyFilter(isManager));
-/* Use the function to define another filter such as isFemale that selects all female employees. */
-const isFemale = singleValueFilter<Employee>("gender", "F");
-/* Now filter the data by isFemale */
-console.log(`
---- Filter the data by filter isFemale ---
-`);
-console.log(employeeList.applyFilter(isFemale));
-console.log(`
---- Filter the data by multiple filters: isManager & isFemale ---
-`);
-console.log(employeeList.applyFilter(isManager, isFemale));
+/* employeeList is now a promise of an Employee List instance and can be resolved by the "then" or 
+"aync-await" syntax. We use "then" here followed by a completion handler which takes the resolved list as 
+input, and define an applyFilter as before. */
+employeeList.then((list) => {
+
+    /* Now we can generate the manager filter by applying the generic function on the Employee type.
+    Note: By hovering over the function call "singleValueFilter", note that the types of the parameters are 
+    now inferred from the Employee type.
+    We set key to "managementPosition" and value to true. So, the isManager filter selects Employee items with 
+    managementPosition equals true. */
+    const isManager = singleValueFilter<Employee>("managementPosition", true);
+    console.log(`
+    --- Filter the data by filter isManager ---
+    `);
+    console.log(list.applyFilter(isManager));
+    /* Use the function to define another filter such as isFemale that selects all female employees. */
+    const isFemale = singleValueFilter<Employee>("gender", "F");
+    /* Now filter the data by isFemale */
+    console.log(`
+    --- Filter the data by filter isFemale ---
+    `);
+    console.log(list.applyFilter(isFemale));
+    console.log(`
+    --- Filter the data by multiple filters: isManager & isFemale ---
+    `);
+    console.log(list.applyFilter(isManager, isFemale));
+    
+})
