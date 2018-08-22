@@ -13,7 +13,11 @@
     class into a generic List class, you might wonder what to do with the managerFilter method which 
     doesn't obviously make sense in a different context.
 
-• Remove the method managerFilter from the Class and provide a generic function singleValueFilter
+• Remove the method manager Filter from the Class and provide a generic function singleValueFilter
+
+    Write a generic function singleValueFilter which returns a generic filter. A singleValueFilter is a filter that selects element by the condition that a single attribute matches a single value, like in our case of the manager filter where we selected employees where the attribute managementPosition has a value of true.
+
+    Take care to define the parameters for the attribute and the value which we will need in the generic function in a type-Safeway. So, don't use a type any. When done, test the function by generating two different Employee filters and apply them on the Employee data.
 
 • Allow multiple filters to be supplied in the applyFilter method
 
