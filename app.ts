@@ -2,7 +2,7 @@
 Starting with the code from Interfaces-Advanced-Topics branch we are going to do the following: 
 • Write EmployeeList as a Class (Done)
 • Make the code generic, so it not only applies for employee data but any type of data (Done)
-• Remove the method manager Filter from the Class and provide a generic function singleValueFilter
+• Remove the method manager Filter from the Class and provide a generic function singleValueFilter (Done)
 • Allow multiple filters to be supplied in the applyFilter method
 • Get employee data by asynchronous and put the employee data service in a separate module
 */
@@ -64,9 +64,11 @@ class List<T> extends Array<T>{
 }
 
 /* Add a function singleValueFilter, the function should be generic function with a type variable T and 
-it takes the parameters key and value which we assume to be of type any for the start. The function will 
-return a filter for data of type T. */
-function singleValueFilter<T>(key: any , value: any) : Filter<T> {
+it takes the parameters key and value. Exchange the any type by a more appropriate type, remember the 
+keyof operator which returns all the members names of a certain type as string values. So, here we can 
+annotate the parameter key with type keyof T, and for the parameter value we use a type lookup (we 
+write T followed by keyof T in square brackets). The function will return a filter for data of type T. */
+function singleValueFilter<T>(key: keyof T , value: T[keyof T]) : Filter<T> {
     /* A filter itself is a function which maps items of type T to true or false. */
     return function(item : T) {
         /* We return true if the property given by key equals the given value, else we return false. */
@@ -80,11 +82,14 @@ from the data we supplied in the constructor function. */
 // const employeeList : List<Employee> = new List<Employee>(employees);
 const employeeList : List<Employee> = new List(employees);
 
-/* Now we can generate the manager filter by applying the generic function on the Employee type. We set 
-key to "managementPosition" and value to true. So, the isManager filter selects Employee items with 
+/* Now we can generate the manager filter by applying the generic function on the Employee type.
+Note: By hovering over the function call "singleValueFilter", note that the types of the parameters are 
+now inferred from the Employee type.
+We set key to "managementPosition" and value to true. So, the isManager filter selects Employee items with 
 managementPosition equals true. */
 const isManager = singleValueFilter<Employee>("managementPosition", true);
 console.log(employeeList.applyFilter(isManager));
-/* Note: We didn't take care of type-safety yet. You can easily check that a non-sense value for one of 
-the parameters don’t lead to a complier error. To fix that, go back to the function definition and 
-exchange the any type by a more appropriate type. */
+/* Use the function to define another filter such as isFemale that selects all female employees. */
+const isFemale = singleValueFilter<Employee>("gender", "F");
+/* Now filter the data by isFemale */
+console.log(employeeList.applyFilter(isFemale));
