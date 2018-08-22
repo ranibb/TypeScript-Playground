@@ -3,7 +3,10 @@
 * Run `npm start` for TypeScript execution and REPL (read–eval–print loop).
 
 ## Exercises
+
 ### Write EmployeeList as a Class (Done)
+
+Our task is to replace the interface and function by a class.
 
 ### Make the code generic, so it not only applies for employee data but any type of data (Done).
 
