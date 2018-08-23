@@ -2,9 +2,12 @@
 
 * Run `npm start` for TypeScript execution and REPL (read–eval–print loop).
 
-# Modules and Namespaces
+## Exercises
 
-Modules and Namespaces are concepts that help us to organize our TypeScript code. With Modules we distribute the code over different files and with Namespaces we group code within a file.
+### Provide a way to easily switch on and off logging.
 
-## Namespaces: Group variables or functions within a file
-In the Second part we cover Namespaces. Namespaces are similar than modules but they are defined within a file. We could for example group a couple of related functions under common namespace and put them on their own scope. The functions are then accessed from outside the namespace with the given name followed by a dot.
+### Rewrite the totalDistance method in the Trail Class with the Array methods map and reduce
+
+### Add a TrailRecording Class which can record Trails automatically based on a function that provides the current location
+
+### Refactor the TrailRecording Class into a NameSpace

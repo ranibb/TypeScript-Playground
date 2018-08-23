@@ -1,10 +1,13 @@
-/* We start with code from Decorators-meta-data-reflection branch. This code consists of logically different 
-Parts: The main code with a point and trail class, the access control and logging facility. 
+/*
+Starting with the code from Namespaces branch + a bit of house keeping; moving permissions related functions
+and defentions to it's own module, we are going to do the following:
+• Provide a way to easily switch on and off logging.
+• Rewrite the totalDistance method in the Trail Class with the Array methods map and reduce
+• Add a TrailRecording Class which can record Trails automatically based on a function that provides the current location
+• Refactor the TrailRecording Class into a NameSpace
+*/
 
-Whereas modules are used to organize our code in different files. Namespaces help us to group code within 
-one and the same file. To do that, define a namespace Logging for grouping together all of the logging 
-decorators. */
-
+import * as AC from "./permission"
 import "reflect-metadata";
 
 interface Printable {
@@ -36,61 +39,6 @@ class Observation extends Point {
     }
 }
 
-enum TrailPrivilege {
-    readCoordinates,
-    writeCoordinates,
-    addPoints,
-    getDistance
-}
-
-interface User {
-    userID: string
-    //...
-    privileges: Set<TrailPrivilege>
-}
-
-const currentUser: User = { 
-    userID: "TS10298", 
-    privileges: new Set(
-        [
-            TrailPrivilege.readCoordinates,
-            TrailPrivilege.addPoints,
-            TrailPrivilege.getDistance
-        ]
-    )};
-
-function methodRequiresPermission(privilege: TrailPrivilege) {
-    return function requirePermission(target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
-        const originalValue = descriptor.value;
-        descriptor.value = function(...args: any[]) {
-            if(currentUser.privileges.has(privilege)) {
-                return originalValue.apply(this, args);
-            }
-            else {
-                console.log("You are not authorized for this action!"); 
-            }
-        }
-        return descriptor; 
-    }
-}
-
-function accessorRequiersPermission(readPrivilege: TrailPrivilege, writePrivilege: TrailPrivilege) {
-    return function (target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
-        if(!currentUser.privileges.has(readPrivilege)) {
-            descriptor.get = () => console.log(`No permission to read property ${propertyKey}.`);
-        }
-        if(!currentUser.privileges.has(writePrivilege)) {
-            descriptor.set = () => console.log(`No permission to write property ${propertyKey}.`);
-        }
-        return descriptor;
-    }
-}
-
-/* Define a namespace "Logging" and copy the related decorators functions into the it. When we try to access 
-one of the decorator’s functions by the "." syntax, we still get an error that the element doesn't exist. The 
-reason is that namespace create their own scope and no elements are available outside of the namespace unless 
-we explicitly mark them by the export keyword. After that we can access the decorators in the Trail class 
-qualifying them by the name Logging. */
 namespace Logging {
     export function logProperty(target: Object, propertyKey: string) {
         let value = target[propertyKey];
@@ -107,7 +55,6 @@ namespace Logging {
         })
     }
 
-    
     type Constructor = new(...args: any[]) => any;
     export function logInstanceCreation (target: Constructor) : Constructor {
         class C extends target {
@@ -152,7 +99,7 @@ namespace Logging {
 class Trail {
     @Logging.logProperty
     private _coordinates: Point[] = []
-    @accessorRequiersPermission(TrailPrivilege.readCoordinates, TrailPrivilege.writeCoordinates)
+    @AC.accessorRequiersPermission(AC.TrailPrivilege.readCoordinates, AC.TrailPrivilege.writeCoordinates)
     get coordinates() : Point[] {
         return this._coordinates;
     }
@@ -163,12 +110,12 @@ class Trail {
         this._coordinates = [];
     }
     @Logging.logMethodParams
-    @methodRequiresPermission(TrailPrivilege.addPoints)
+    @AC.methodRequiresPermission(AC.TrailPrivilege.addPoints)
     add(@Logging.logParam point: Point) : Trail {
         this._coordinates.push(point);
         return this;
     }
-    @methodRequiresPermission(TrailPrivilege.getDistance)
+    @AC.methodRequiresPermission(AC.TrailPrivilege.getDistance)
     totalDistance() : number {
         let total = 0;
         for (let index = 1; index < this._coordinates.length; index++) {
