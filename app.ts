@@ -1,7 +1,7 @@
 /*
 Starting with the code from Namespaces branch + a bit of house keeping; moving permissions related functions
 and defentions to it's own module, we are going to do the following:
-• Provide a way to easily switch on and off logging.
+• Provide a way to easily switch on and off logging (Done)
 • Rewrite the totalDistance method in the Trail Class with the Array methods map and reduce
 • Add a TrailRecording Class which can record Trails automatically based on a function that provides the current location
 • Refactor the TrailRecording Class into a NameSpace
@@ -9,6 +9,11 @@ and defentions to it's own module, we are going to do the following:
 
 import * as AC from "./permission"
 import "reflect-metadata";
+
+/* If you `npm start` we get a lot of messages because of the logging we implemented. For an easy switch 
+enabling or disabling logging we could just use a boolean constant that we defiene. Then, we need to update 
+all the logging decorators to check for this option.*/
+const logging = false; // test both cases when logging = true and when logging = false
 
 interface Printable {
     toString(): string
@@ -40,7 +45,11 @@ class Observation extends Point {
 }
 
 namespace Logging {
+    /* The property decorator function logProperty doesn't have a return value so we don't need to care about 
+    it's return and can just skip the decorator's code in case logging is switch off. This is done by an 
+    empty return statment. */
     export function logProperty(target: Object, propertyKey: string) {
+        if(!logging) return;
         let value = target[propertyKey];
         Reflect.deleteProperty(target, propertyKey);
         Reflect.defineProperty(target, propertyKey, {
@@ -59,7 +68,11 @@ namespace Logging {
     export function logInstanceCreation (target: Constructor) : Constructor {
         class C extends target {
             constructor(...args: any[]) {
-                console.log("New "+ target.name + " Instance Created with Arguments: " + args.join(","));
+                /* The situation is defferent for the class decorators, here wil just wrap the logging statment 
+                that we added to the class and method by an if block; checking if logging is turned on or not */
+                if(logging) {
+                    console.log("New "+ target.name + " Instance Created with Arguments: " + args.join(","));
+                }
                 super(...args);
             }
         }
@@ -81,14 +94,20 @@ namespace Logging {
             logParams.set(propertyKey, indexSet);
         }
         Reflect.defineMetadata(logParamsMeta, logParams, target);
-        console.log(logParams);
+        if(logging) {
+            console.log(logParams);
+        }
     }
     
     export function logMethodParams(target: Object, propertyKey: string, descriptor: PropertyDescriptor) {
         const indexSet = [...Reflect.getMetadata(logParamsMeta, target).get(propertyKey)]
         const originalValue = descriptor.value;
         descriptor.value = function(...args: any[]) {
-            console.log("Input for method " + propertyKey + ": " + indexSet.map((index) => args[index].toString()).join(", "));
+            /* The situation is defferent for the method decorators, here wil just wrap the logging statment 
+            that we added to the method by an if block. checking if logging is turned on or not */
+            if(logging) {
+                console.log("Input for method " + propertyKey + ": " + indexSet.map((index) => args[index].toString()).join(", "));
+            }
             return originalValue.apply(this, args);
         }
         return descriptor;
