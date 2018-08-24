@@ -2,7 +2,7 @@
 Starting with the code from Namespaces branch + a bit of house keeping; moving permissions related functions
 and defentions to it's own module, we are going to do the following:
 • Provide a way to easily switch on and off logging (Done)
-• Rewrite the totalDistance method in the Trail Class with the Array methods map and reduce
+• Rewrite the totalDistance method in the Trail Class with the Array methods map and reduce (Done)
 • Add a TrailRecording Class which can record Trails automatically based on a function that provides the current location
 • Refactor the TrailRecording Class into a NameSpace
 */
@@ -136,17 +136,26 @@ class Trail {
     }
     @AC.methodRequiresPermission(AC.TrailPrivilege.getDistance)
     totalDistance() : number {
-        let total = 0;
-        for (let index = 1; index < this._coordinates.length; index++) {
-            total += this._coordinates[index].distanceTo(this._coordinates[index - 1])
-        }
-        return total;
+        /* Apply the map method on the trail coordinates to compute an array of distances between two 
+        successive points. And then we add up these distances by use of the reduce method. The map method 
+        takes a function as input which determines how each individual element should be mapped. */
+        const totalDistance = this._coordinates.map((value, index, coord) => {
+            /* Since a first element of the coordinates array has no proceeding element, we only compute the 
+            distances of all the other points to their successors. For the first element we return a distance 
+            of zero. */
+            return index > 0 ? coord[index].distanceTo(coord[index-1]) : 0;
+        })
+        /* On the result of the map method we apply reduce to sum up all the individual distances */
+        .reduce((previousValue, currentValue) => previousValue + currentValue);
+        /* Finally, return total distance. */
+        return totalDistance;
     }
 }
 
 const trail = new Trail();
 trail.add(new Point(0,0));
 trail.add(new Point(1,1));
+trail.add(new Point(2,2));
 console.log(trail.coordinates);
 console.log(trail.totalDistance());
 
@@ -161,7 +170,9 @@ class Trek extends Trail {
 let trek = new Trek();
 const obs1 = new Observation(0, 0, new Date(), 1000);
 const obs2 = new Observation(1, 1, new Date(), 2000);
+const obs3 = new Observation(2, 2, new Date(), 2000);
 trek.add(obs1);
 trek.add(obs2);
+trek.add(obs3);
 console.log(trek.coordinates);
 console.log(trek.totalDistance());
