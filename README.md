@@ -17,3 +17,5 @@ We computed the total distance of a trail by adding up the individual distances 
 We will extend the code by the functionality to record trails automatically based on some location provider. You can just simulate the location provider by a function which returns some arbitrary location as a current location. Then write a class TrailRecording with public methods start and stop to start and stop recording and with a getter or a method to retrieve the recorded coordinates. And think yourself which additional private class members you need for the implementation. When finished, test your code by starting the recording and stopping it 3 seconds later.  
 
 ### Refactor the TrailRecording Class into a NameSpace
+
+In the previous exercise we created a class for recording trails automatically. The class could be instantiated multiple times to run several recordings at the same time. To prevent that we could modify the class to become a singleton class. However, in many cases there is a better alternative to a singleton class, a Namespace. So, for this exercise refactor the code to replace the class by a Namespace.

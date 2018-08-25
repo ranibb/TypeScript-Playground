@@ -4,7 +4,7 @@ and defentions to it's own module, we are going to do the following:
 • Provide a way to easily switch on and off logging (Done)
 • Rewrite the totalDistance method in the Trail Class with the Array methods map and reduce (Done)
 • Add a TrailRecording Class which can record Trails automatically based on a function that provides the current location (Done)
-• Refactor the TrailRecording Class into a NameSpace
+• Refactor the TrailRecording Class into a NameSpace (Done)
 */
 
 import * as AC from "./permission"
@@ -159,73 +159,78 @@ function getCurrentLocation() : Point {
     return new Point(Math.random(), Math.random());
 }
 
-/* 2- Define a class TrailRecording with a class constructor and the public methods start and stop. Both 
-methods have no parameters and no return value. */
-class TrailRecording {
+/* 2- Define the TrailRecording as a Namespace with a reset function and the methods start and stop. */
+namespace TrailRecording {
 
-    /* 3- Obviously, we also need a property for storing the recorded trail. We could define the trail 
-    property as read-only or as we do here, add a private property together with a getter. */
-    private _trail: Trail
+    /* 3- Obviously, we also need a property for storing the recorded trail. Define the trail 
+    property as a standard varibale with let keyword. */
+    let _trail: Trail
 
-    get trail() {
-        return this._trail;
+    /* 4- Define the getter as a standard function. Also add the keyword export in front of the function.   */
+    export function getTrail() {
+        return _trail;
     }
 
-    /* 7- Obviously, we need a locationProvider as a class property, which could be set to the constructor 
-    when a new instance is created, let's do that and define the type of the locationProvider as a function 
-    with no parameters and a Point as a return value. 
-    
-    14- Also we need interval as a class property which we add to the parameters of the class constructor as 
-    well, so it can be set at the time of instance creation.
-    */
-    constructor(private locationProvider: () => Point, private interval : number ) {
+    /* 5- Define the constructor as function reset, which itinitializes the trail with an empty trail instance. 
+    Also add the keyword export in front of the function.  */
+    export function reset( ) {
 
-        /* 4- Initialize the _trail property in the class constructor with an empty trail instance. */
-        this._trail = new Trail();
+        /* Initialize the _trail property in the reset function with an empty trail instance. */
+        _trail = new Trail();
     }
 
-    /* 10- Create a private property isRecording with initial value of false. */
-    private isRecording = false;
+    /* 12- Create a private property isRecording with initial value of false. */
+    let isRecording = false;
 
-    /* 5- Create a private method which actually records a point. */
-    private recordPoint() {
+    /* 7-  Create a standard method which actually records a point. 
+       9-  We need a locationProvider as a parameter to use it to add a current location to the trail.
+       16- also add interval as parameter. 
+       */
+    function recordPoint(locationProvider: () => Point, interval : number) {
 
-        /* 13- Update the recordPoint method to implement continues recording; wrap the whole code in an if 
+        /* 15- Update the recordPoint method to implement continues recording; wrap the whole code in an if 
         block to make sure that we only proceed recording as long as the flag isRecording is true. */
-        if (this.isRecording) {
+        if (isRecording) {
 
-            /* 6- The method should add a point to the Trail, which will be provided by our function 
-            getCurrentLocation. Obviously, we need a locationProvider as a class property, which could be 
-            set to the constructor when a new instance is created... 7-
-            Then, use the locationProvider to add a current location to the trail. */
-            this._trail.add(this.locationProvider());
+            /* 8- The method should add a point to the Trail, which will be provided by our function 
+            getCurrentLocation. Therefore, we need a locationProvider as a parameter to use it to add a 
+            current location to the trail. */
+            _trail.add(locationProvider());
 
-            /* 15- After recording the current location, we call the method recordPoint again after delay 
-            given by the class property interval. */ 
-            setTimeout(() => this.recordPoint(), this.interval);
+            /* 17- After recording the current location, we call the method recordPoint again after delay 
+            given by the function parameter interval. */ 
+            setTimeout(() => { 
+                recordPoint(locationProvider,interval)
+            }, interval);
 
         }
     }
 
-    start() {
+    export function start(locationProvider: () => Point, interval : number) {
 
-        /* 11- Switch on status isRecording */
-        this.isRecording = true;
+        /* 6- We need to make sure that a trail instance is initialized when starting the recording. 
+        Therefore, we call reset in the start function in case the trail varibale is not yet istantiated */
+        if (!_trail) {
+            reset();
+        }
 
-        /* 8- In the start method call recordPoint */
-        this.recordPoint();
-        /* 9- When we start recording, the current location is added. However, we expect a continues 
-        recording of our location. For that, two more class properties are required;
+        /* 13- Switch on status isRecording */
+        isRecording = true;
+
+        /* 10- Call recordPoint. */
+        recordPoint(locationProvider, interval);
+        /* 11- When we start recording, the current location is added. However, we expect a continues 
+        recording of our location. For that, two more properties are required;
         First, we need to know when recording is active and when is not. 
         Second, we should have the option to set the interval of recording.
         Therefore, create a private property isRecording with initial value of false. And another property, 
-        interval, which we add to the parameters of the class constructor, so it can be set at the time of 
-        instance creation. */
+        interval, which we add to the parameters of the recordPoint and start functions. */
     }
 
-    stop() {
-        /* 12- Switch off status isRecording */
-        this.isRecording = false;
+    /* Also add the keyword export in front of the function. */
+    export function stop() {
+        /* 14- Switch off status isRecording */
+        isRecording = false;
 
     }
 
@@ -256,16 +261,12 @@ trek.add(obs3);
 console.log(trek.coordinates);
 console.log(trek.totalDistance());
 
-/* 16- To test our class, first create a TrailRecording instance. We initialize it with a function 
-getCurrentLocation as locationProvider and an interval of 1000 milliseconds and . */
-const trailRecording = new TrailRecording(getCurrentLocation, 1000)
+/* 18- Call the start and stop methods on the TrailRecording namespace */
+TrailRecording.start(getCurrentLocation, 1000);
 
-/* 17- Then start recording */
-trailRecording.start();
-
-/* 18- And stop it after certain time pass, let’s say 3 seconds. */
+/* 19- And stop it after certain time pass, let’s say 3 seconds. */
 setTimeout(() => {
-    trailRecording.stop();
-    /* 19- After its stopped, log the recorded trail to the console.   */
-    console.log(trailRecording.trail.coordinates);
+    TrailRecording.stop();
+    /* 20- After its stopped, log the recorded trail to the console.   */
+    console.log(TrailRecording.getTrail().coordinates);
 }, 3000)
