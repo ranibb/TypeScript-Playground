@@ -14,4 +14,6 @@ We computed the total distance of a trail by adding up the individual distances 
  
 ### Add a TrailRecording Class which can record Trails automatically based on a function that provides the current location
 
+We will extend the code by the functionality to record trails automatically based on some location provider. You can just simulate the location provider by a function which returns some arbitrary location as a current location. Then write a class TrailRecording with public methods start and stop to start and stop recording and with a getter or a method to retrieve the recorded coordinates. And think yourself which additional private class members you need for the implementation. When finished, test your code by starting the recording and stopping it 3 seconds later.  
+
 ### Refactor the TrailRecording Class into a NameSpace
